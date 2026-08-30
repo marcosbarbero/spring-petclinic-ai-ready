@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# The local gate. Everything CI would tell you in 12 minutes, told to you in 2,
+# before anything leaves this machine and before a reviewer's afternoon is spent.
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+#
+# There is deliberately no fast path. If you need --no-verify, you need a smaller change.
+
+set -uo pipefail
+
+RED=$'\033[31m'; GREEN=$'\033[32m'; YELLOW=$'\033[33m'; BOLD=$'\033[1m'; OFF=$'\033[0m'
+start=$(date +%s)
+
+step() { printf '\n%s▶ %s%s\n' "$BOLD" "$1" "$OFF"; }
+fail() {
+  printf '\n%s%s✗ PUSH REJECTED — %s%s\n' "$BOLD" "$RED" "$1" "$OFF"
+  printf '%s  Nothing left this machine. Fix it and push again.%s\n\n' "$RED" "$OFF"
+  exit 1
+}
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+step "1/4  format"
+./mvnw -q spring-javaformat:validate || fail "formatting (run: ./mvnw spring-javaformat:apply)"
+
+step "2/4  architecture rules"
+./mvnw -q test -Dtest='ArchitectureRulesTest' -DfailIfNoTests=false \
+  || fail "architecture rules — you crossed a package boundary"
+
+step "3/4  tests + coverage gate"
+./mvnw -q verify || fail "tests or coverage threshold"
+
+# Mutation is the slow one, so it is opt-out rather than always-on for very large pushes.
+if [ "${SKIP_MUTATION:-0}" = "1" ]; then
+  printf '\n%s⚠ 4/4  mutation testing SKIPPED (SKIP_MUTATION=1)%s\n' "$YELLOW" "$OFF"
+else
+  step "4/4  mutation score"
+  ./mvnw -q -Pmutation test \
+    || fail "mutation score below threshold — your tests run the code but do not check it"
+fi
+
+printf '\n%s%s✓ all gates green in %ss — pushing%s\n\n' "$BOLD" "$GREEN" "$(( $(date +%s) - start ))" "$OFF"
