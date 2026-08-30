@@ -70,7 +70,14 @@ you read a multi-megabyte report. Use them before reasoning about coverage or mu
 .claude/tools/mutation_survivors.py   # which mutants survived, and where
 .claude/tools/coverage_gaps.py        # uncovered lines, scoped to your diff
 .claude/tools/check_issue.py <file>   # is this ticket implementable at all?
+.claude/tools/issue_context.py gh#42  # issue -> validated work brief (refuses bad tickets)
 ```
+
+## Workflow
+
+`/work gh#42` runs the whole thing: brief → plan → tech-lead implements test-first →
+reviewer validates against the issue's scenarios → cycle (bounded at 3 rounds) → gates →
+PR. The prompt is an issue number; this repo supplies everything else.
 
 If you find yourself about to read a generated report, check whether a tool already
 extracts the answer. **Deterministic first. Agent on failure.**
