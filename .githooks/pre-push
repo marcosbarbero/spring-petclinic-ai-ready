@@ -33,7 +33,10 @@ step "2/5  lint"
 ./mvnw -q checkstyle:check@quality-checkstyle-validation \
   || fail "lint / code quality (magic numbers, complexity, injection surface)"
 
-step "3/5  architecture rules"
+step "3/5  tool registry + architecture rules"
+.claude/tools/tool_mapping.py check \
+  || fail "tool registry drift — an unregistered tool is an undiscoverable tool"
+
 ./mvnw -q test -Dtest='ArchitectureRulesTest' -Dsurefire.failIfNoSpecifiedTests=false \
   || fail "architecture rules — you crossed a package boundary"
 

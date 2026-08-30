@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "tools": {
+    "check-issue": {
+      "example": ".claude/tools/check_issue.py docs/issues/pet-birthdate.md",
+      "path": ".claude/tools/check_issue.py",
+      "replaces": "reading a ticket and judging by feel whether it is implementable",
+      "summary": "Validate a local issue file: Gherkin, tier, constraints, outcome",
+      "use_when": "before starting work from a markdown ticket, or in CI on issue open"
+    },
+    "coverage-gaps": {
+      "example": ".claude/tools/coverage_gaps.py            # --all for the whole module",
+      "path": ".claude/tools/coverage_gaps.py",
+      "replaces": "reading target/site/jacoco/**.html",
+      "summary": "Uncovered lines, scoped to the files changed on this branch",
+      "use_when": "the coverage gate failed, or you need to know what is untested in your diff"
+    },
+    "issue-context": {
+      "example": ".claude/tools/issue_context.py gh#42",
+      "path": ".claude/tools/issue_context.py",
+      "replaces": "shelling out to gh and parsing issue JSON by hand",
+      "summary": "GitHub issue -> validated work brief; refuses bad tickets, stops on tier-3",
+      "use_when": "step 1 of /work, always, before any planning or code"
+    },
+    "mutation-survivors": {
+      "example": ".claude/tools/mutation_survivors.py --limit 10",
+      "path": ".claude/tools/mutation_survivors.py",
+      "replaces": "reading target/pit-reports/**.html (~2MB, ~40k tokens)",
+      "summary": "Surviving mutants and where they are, in ~15 lines",
+      "use_when": "after -Pmutation, or whenever asked to improve the mutation score"
+    }
+  }
+}

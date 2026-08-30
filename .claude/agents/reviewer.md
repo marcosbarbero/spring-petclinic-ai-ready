@@ -18,7 +18,8 @@ exists to remove.
    proves it. A scenario with no corresponding test is an automatic reject. Quote the
    test name.
 2. **Does the test assert the scenario's *Then*,** or does it merely execute the code?
-   Run `.claude/tools/mutation_survivors.py`. A survivor inside changed code means the
+   Run `.claude/tools/mutation_survivors.py` — `tool_mapping.py list` shows what else
+   is available. A survivor inside changed code means the
    test does not actually check the behaviour.
 3. **Boundary fidelity.** If the scenario says "today is accepted, tomorrow is rejected",
    verify the test asserts exactly that boundary — not "some past date" and "some future

@@ -74,17 +74,22 @@ costs tokens to re-derive and can drift from the other copies.
 This repo applies that to itself: both hooks parse the same JSON payload, so that parsing
 lives in `.claude/hooks/hook_io.py` rather than in each hook.
 
-## Tools — prefer these over reading artifacts
+## Tools — look them up, don't guess
 
-Deterministic scripts that answer a question in a few hundred tokens instead of making
-you read a multi-megabyte report. Use them before reasoning about coverage or mutation.
+Deterministic scripts live in `.claude/tools/`. **Discover them by key, not by reading
+the directory:**
 
 ```bash
-.claude/tools/mutation_survivors.py   # which mutants survived, and where
-.claude/tools/coverage_gaps.py        # uncovered lines, scoped to your diff
-.claude/tools/check_issue.py <file>   # is this ticket implementable at all?
-.claude/tools/issue_context.py gh#42  # issue -> validated work brief (refuses bad tickets)
+.claude/tools/tool_mapping.py list        # keys + one-line summaries
+.claude/tools/tool_mapping.py get <key>   # detail for the one you need
 ```
+
+Run `list` once when a task needs tooling, then recall by key. That is cheaper than
+re-reading prose every turn, and it cannot drift — `tool_mapping.py check` runs in
+pre-push and fails if a tool exists on disk but is not registered.
+
+Before you read a generated report or write a one-off script, check the registry.
+**Deterministic first. Agent on failure.**
 
 ## Workflow
 

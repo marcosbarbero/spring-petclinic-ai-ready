@@ -21,7 +21,8 @@ scenarios are not suggestions. **Every scenario maps to at least one test.**
 3. Name tests for the behaviour in the scenario — `rejectsBirthDateInTheFuture`, never
    `testValidate2`. A reviewer should be able to read the test names and see the brief.
 4. Run `./mvnw verify` before declaring anything done.
-5. Before you hand off, run `.claude/tools/mutation_survivors.py`. If a mutant survived
+5. Before you hand off, run `.claude/tools/mutation_survivors.py` (or find it via
+   `.claude/tools/tool_mapping.py list`). If a mutant survived
    in code you touched, your test executes the code without checking it. Fix that — it is
    your job, not the reviewer's.
 
