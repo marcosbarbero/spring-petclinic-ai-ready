@@ -11,10 +11,8 @@ set -uo pipefail
 RED=$'\033[31m'; GREEN=$'\033[32m'; YELLOW=$'\033[33m'; BOLD=$'\033[1m'; OFF=$'\033[0m'
 start=$(date +%s)
 
-# Container-backed tests need Docker and dominate the runtime (~46s of a 60s build).
-# The local gate stays fast and deterministic; CI runs the full suite including these.
-NO_CONTAINERS=(-Dtest='!MySqlIntegrationTests,!PostgresIntegrationTests'
-               -Dsurefire.failIfNoSpecifiedTests=false)
+# Docker-dependent tests are excluded from the default build in pom.xml, so the local
+# gate is fast and needs no Docker. CI runs them via -Pcontainers.
 
 step() { printf '\n%s▶ %s%s\n' "$BOLD" "$1" "$OFF"; }
 fail() {
@@ -38,14 +36,14 @@ step "3/5  architecture rules"
   || fail "architecture rules — you crossed a package boundary"
 
 step "4/5  tests + coverage gate"
-./mvnw -q verify "${NO_CONTAINERS[@]}" \
+./mvnw -q verify \
   || fail "tests or coverage threshold (line 90% / branch 78%)"
 
 if [ "${SKIP_MUTATION:-0}" = "1" ]; then
   printf '\n%s⚠ 5/5  mutation testing SKIPPED (SKIP_MUTATION=1)%s\n' "$YELLOW" "$OFF"
 else
   step "5/5  mutation score"
-  ./mvnw -q -Pmutation verify "${NO_CONTAINERS[@]}" \
+  ./mvnw -q -Pmutation verify \
     || fail "mutation score below 80% — your tests run the code but do not check it"
 fi
 

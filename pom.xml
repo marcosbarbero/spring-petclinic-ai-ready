@@ -283,6 +283,19 @@
           </execution>
         </executions>
       </plugin>
+      <!-- Docker-dependent tests are OPT-IN. A fresh clone must go green with
+        `./mvnw verify` on a machine with no Docker, or with port 5432/3306 already
+        taken by something else. Run them with `-Pcontainers` (CI does). -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/MySqlIntegrationTests.java</exclude>
+            <exclude>**/PostgresIntegrationTests.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -475,6 +488,22 @@
             </plugin>
           </plugins>
         </pluginManagement>
+      </build>
+    </profile>
+    <!-- Re-enables the Docker-dependent integration tests. Used by CI, and by anyone
+      who wants the full suite locally and has Docker with 3306/5432 free. -->
+    <profile>
+      <id>containers</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes combine.self="override"/>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
     <!-- Mutation testing. Not active by default so that a plain `mvn verify` stays fast;
