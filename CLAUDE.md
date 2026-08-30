@@ -61,6 +61,19 @@ Docker-dependent tests are excluded by default; `-Pcontainers` restores them (CI
 - Prefer the smallest change that satisfies the acceptance criteria. Do not refactor
   adjacent code you were not asked to touch.
 
+## Tooling rule
+
+**Do not write inline or throwaway scripts.** No `python3 -c '...'` buried in a command,
+no one-off shell pipelines to parse a report.
+
+If you need a script once, write it as a file and say why. **If you need it twice, it
+becomes a reusable tool in `.claude/tools/` with a docstring and `--help`.** An inline
+script is written once, debugged never, and duplicated forever — and every duplicate
+costs tokens to re-derive and can drift from the other copies.
+
+This repo applies that to itself: both hooks parse the same JSON payload, so that parsing
+lives in `.claude/hooks/hook_io.py` rather than in each hook.
+
 ## Tools — prefer these over reading artifacts
 
 Deterministic scripts that answer a question in a few hundred tokens instead of making
@@ -79,8 +92,14 @@ you read a multi-megabyte report. Use them before reasoning about coverage or mu
 reviewer validates against the issue's scenarios → cycle (bounded at 3 rounds) → gates →
 PR. The prompt is an issue number; this repo supplies everything else.
 
-If you find yourself about to read a generated report, check whether a tool already
-extracts the answer. **Deterministic first. Agent on failure.**
+Run any of them with `--help`. If you find yourself about to read a generated report,
+check `ls .claude/tools/` first — the answer is probably already extracted.
+
+**Deterministic first. Agent on failure.**
+
+> These tools are NOT auto-discovered by the agent — `.claude/tools/` is a convention of
+> this repo, not of the harness runtime. This list is how they get found, which is why it
+> lives in the always-on file. Add a line here when you add a tool, or nobody will use it.
 
 ## Commands
 
