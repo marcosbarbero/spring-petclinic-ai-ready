@@ -14,15 +14,14 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
  * Architecture rules, enforced as tests.
  * <p>
  * This is the harness gate that answers the most common complaint about AI-generated
- * code: "it violates our package boundaries". It cannot violate a boundary that fails
- * the build. Neither can a human, which is the point — these rules are author-blind.
+ * code: "it violates our package boundaries". It cannot violate a boundary that fails the
+ * build. Neither can a human, which is the point — these rules are author-blind.
  * <p>
  * PetClinic is organised <em>package by feature</em> ({@code owner}, {@code vet},
  * {@code system}) rather than package by layer, so the valuable rules here are about
  * feature isolation, not about layering. See {@code docs/adr/0001-package-by-feature.md}.
  */
-@AnalyzeClasses(packages = ArchitectureRulesTest.ROOT,
-		importOptions = ImportOption.DoNotIncludeTests.class)
+@AnalyzeClasses(packages = ArchitectureRulesTest.ROOT, importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureRulesTest {
 
 	static final String ROOT = "org.springframework.samples.petclinic";
@@ -33,7 +32,7 @@ class ArchitectureRulesTest {
 	 */
 	@ArchTest
 	static final ArchRule features_are_independent = SlicesRuleDefinition.slices()
-		.matching(ROOT + ".(owner|vet).." )
+		.matching(ROOT + ".(owner|vet)..")
 		.should()
 		.notDependOnEachOther()
 		.because("feature slices must stay independent; cross-feature reuse belongs in model or a new shared slice");

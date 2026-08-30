@@ -30,7 +30,7 @@
     <!-- Checkstyle needs to stay on v12 since v13 sets minimal jdk to 21 - https://checkstyle.org/releasenotes.html#Release_13.0.0 -->
     <checkstyle.version>12.3.1</checkstyle.version>
     <archunit.version>1.3.0</archunit.version>
-    <pitest.version>1.17.0</pitest.version>
+    <pitest.version>1.19.6</pitest.version>
     <jacoco.version>0.8.15</jacoco.version>
     <libsass.version>0.3.4</libsass.version>
     <lifecycle-mapping>1.0.0</lifecycle-mapping>
@@ -314,7 +314,7 @@
                     <limit>
                       <counter>LINE</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.70</minimum>
+                      <minimum>0.90</minimum>
                     </limit>
                   </limits>
                 </rule>
@@ -324,7 +324,7 @@
                     <limit>
                       <counter>BRANCH</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.60</minimum>
+                      <minimum>0.78</minimum>
                     </limit>
                   </limits>
                 </rule>
@@ -493,7 +493,7 @@
               <dependency>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-junit5-plugin</artifactId>
-                <version>1.2.1</version>
+                <version>1.2.3</version>
               </dependency>
             </dependencies>
             <configuration>
@@ -504,13 +504,27 @@
               <targetTests>
                 <param>org.springframework.samples.petclinic.*</param>
               </targetTests>
-              <mutationThreshold>75</mutationThreshold>
+              <mutationThreshold>80</mutationThreshold>
               <timestampedReports>false</timestampedReports>
               <outputFormats>
                 <param>HTML</param>
                 <param>XML</param>
               </outputFormats>
+              <!-- Container-backed tests need Docker and dominate the runtime;
+                the mutation gate is about unit-level assertions. -->
+              <excludedTestClasses>
+                <param>org.springframework.samples.petclinic.*IntegrationTests</param>
+              </excludedTestClasses>
             </configuration>
+            <executions>
+              <execution>
+                <id>mutation-coverage</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>mutationCoverage</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

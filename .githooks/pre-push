@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# The local gate. Everything CI would tell you in 12 minutes, told to you in 2,
-# before anything leaves this machine and before a reviewer's afternoon is spent.
+# The local gate. Everything CI would tell you in twelve minutes, told to you in ten
+# seconds, before anything leaves this machine and before a reviewer's afternoon is spent.
 #
-# Enable once per clone:
-#   git config core.hooksPath .githooks
+# Enable once per clone:   git config core.hooksPath .githooks
 #
 # There is deliberately no fast path. If you need --no-verify, you need a smaller change.
 
@@ -11,6 +10,11 @@ set -uo pipefail
 
 RED=$'\033[31m'; GREEN=$'\033[32m'; YELLOW=$'\033[33m'; BOLD=$'\033[1m'; OFF=$'\033[0m'
 start=$(date +%s)
+
+# Container-backed tests need Docker and dominate the runtime (~46s of a 60s build).
+# The local gate stays fast and deterministic; CI runs the full suite including these.
+NO_CONTAINERS=(-Dtest='!MySqlIntegrationTests,!PostgresIntegrationTests'
+               -Dsurefire.failIfNoSpecifiedTests=false)
 
 step() { printf '\n%s▶ %s%s\n' "$BOLD" "$1" "$OFF"; }
 fail() {
@@ -21,23 +25,28 @@ fail() {
 
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
-step "1/4  format"
-./mvnw -q spring-javaformat:validate || fail "formatting (run: ./mvnw spring-javaformat:apply)"
+step "1/5  formatting"
+./mvnw -q spring-javaformat:validate \
+  || fail "formatting (fix: ./mvnw spring-javaformat:apply)"
 
-step "2/4  architecture rules"
-./mvnw -q test -Dtest='ArchitectureRulesTest' -DfailIfNoTests=false \
+step "2/5  lint"
+./mvnw -q checkstyle:check@nohttp-checkstyle-validation \
+  || fail "lint / checkstyle"
+
+step "3/5  architecture rules"
+./mvnw -q test -Dtest='ArchitectureRulesTest' -Dsurefire.failIfNoSpecifiedTests=false \
   || fail "architecture rules — you crossed a package boundary"
 
-step "3/4  tests + coverage gate"
-./mvnw -q verify || fail "tests or coverage threshold"
+step "4/5  tests + coverage gate"
+./mvnw -q verify "${NO_CONTAINERS[@]}" \
+  || fail "tests or coverage threshold (line 90% / branch 78%)"
 
-# Mutation is the slow one, so it is opt-out rather than always-on for very large pushes.
 if [ "${SKIP_MUTATION:-0}" = "1" ]; then
-  printf '\n%s⚠ 4/4  mutation testing SKIPPED (SKIP_MUTATION=1)%s\n' "$YELLOW" "$OFF"
+  printf '\n%s⚠ 5/5  mutation testing SKIPPED (SKIP_MUTATION=1)%s\n' "$YELLOW" "$OFF"
 else
-  step "4/4  mutation score"
-  ./mvnw -q -Pmutation test \
-    || fail "mutation score below threshold — your tests run the code but do not check it"
+  step "5/5  mutation score"
+  ./mvnw -q -Pmutation verify "${NO_CONTAINERS[@]}" \
+    || fail "mutation score below 80% — your tests run the code but do not check it"
 fi
 
 printf '\n%s%s✓ all gates green in %ss — pushing%s\n\n' "$BOLD" "$GREEN" "$(( $(date +%s) - start ))" "$OFF"
