@@ -45,8 +45,9 @@ failing test.
 - Cover the boundary, not just the happy path. A validator test that only passes a
   valid value proves nothing — mutation testing will fail you for it.
 
-Coverage ≥ 70% line / 60% branch (JaCoCo, enforced at `verify`).
-Mutation score ≥ 75% on `owner` and `model` (PIT, `-Pmutation`).
+Coverage ≥ 90% line / 78% branch (JaCoCo, enforced at `verify`).
+Mutation score ≥ 80% on `owner` and `model` (PIT, `-Pmutation verify`).
+Docker-dependent tests are excluded by default; `-Pcontainers` restores them (CI uses it).
 
 ## Style
 
@@ -79,7 +80,7 @@ extracts the answer. **Deterministic first. Agent on failure.**
 ```bash
 ./mvnw verify                 # format, checkstyle, arch rules, tests, coverage gate
 ./mvnw test -Dtest=ClassName  # one test class
-./mvnw -Pmutation test        # mutation score (slow — run before pushing, not per edit)
+./mvnw -Pmutation verify      # mutation score (slow — before pushing, not per edit)
 git push                      # runs .githooks/pre-push: the full gate, locally
 ```
 
