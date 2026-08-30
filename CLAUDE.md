@@ -52,10 +52,27 @@ Mutation score ≥ 75% on `owner` and `model` (PIT, `-Pmutation`).
 
 - `./mvnw spring-javaformat:apply` before finishing. Formatting is not a matter of taste
   here; the build fails on it.
-- No magic numbers. Name the constant (`MAX_NAME_LENGTH`, not `30`).
+- No magic numbers, no methods over 60 lines, no cyclomatic complexity over 10, no
+  concatenated SQL/JPQL, no `printStackTrace`, no field injection. These are **enforced**
+  by `src/checkstyle/quality-checkstyle.xml`, not requested.
 - No `http://` URLs anywhere — checkstyle's nohttp rule fails the build.
+- Formatting is applied for you by a `PostToolUse` hook. Do not spend tokens on it.
 - Prefer the smallest change that satisfies the acceptance criteria. Do not refactor
   adjacent code you were not asked to touch.
+
+## Tools — prefer these over reading artifacts
+
+Deterministic scripts that answer a question in a few hundred tokens instead of making
+you read a multi-megabyte report. Use them before reasoning about coverage or mutation.
+
+```bash
+.claude/tools/mutation_survivors.py   # which mutants survived, and where
+.claude/tools/coverage_gaps.py        # uncovered lines, scoped to your diff
+.claude/tools/check_issue.py <file>   # is this ticket implementable at all?
+```
+
+If you find yourself about to read a generated report, check whether a tool already
+extracts the answer. **Deterministic first. Agent on failure.**
 
 ## Commands
 

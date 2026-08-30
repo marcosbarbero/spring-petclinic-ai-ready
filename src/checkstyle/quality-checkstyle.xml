@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+	"-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+	"https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  Code-style rules that were previously only PROSE in CLAUDE.md.
+
+  An instruction is a suggestion. A failing build is not. Everything in here was a
+  sentence an agent could ignore until it became a rule that fails the build.
+-->
+<module name="Checker">
+	<property name="severity" value="error"/>
+	<property name="fileExtensions" value="java"/>
+
+	<!-- Files must not be enormous. Bounds the blast radius of any single change,
+	     and keeps files small enough to hold in a context window. -->
+	<module name="FileLength">
+		<property name="max" value="400"/>
+	</module>
+
+	<module name="TreeWalker">
+
+		<!-- MAGIC NUMBERS. Name the constant. -->
+		<module name="MagicNumber">
+			<property name="ignoreNumbers" value="-1, 0, 1, 2"/>
+			<property name="ignoreAnnotation" value="true"/>
+			<property name="ignoreFieldDeclaration" value="true"/>
+			<property name="ignoreHashCodeMethod" value="true"/>
+		</module>
+
+		<!-- Complexity limits. An agent will happily write a 15-branch method. -->
+		<module name="CyclomaticComplexity">
+			<property name="max" value="10"/>
+		</module>
+		<module name="MethodLength">
+			<property name="max" value="60"/>
+			<property name="countEmpty" value="false"/>
+		</module>
+		<module name="ParameterNumber">
+			<property name="max" value="7"/>
+		</module>
+		<module name="NestedIfDepth">
+			<property name="max" value="3"/>
+		</module>
+
+		<!-- Correctness traps that reviewers waste time on. -->
+		<module name="EqualsHashCode"/>
+		<module name="StringLiteralEquality"/>
+		<module name="SimplifyBooleanExpression"/>
+		<module name="SimplifyBooleanReturn"/>
+		<module name="EmptyStatement"/>
+		<module name="FallThrough"/>
+		<module name="MissingSwitchDefault"/>
+		<module name="DefaultComesLast"/>
+		<module name="IllegalThrows"/>
+
+		<!-- INPUT SANITISATION / injection surface.
+		     Concatenated JPQL/SQL is the single highest-value thing to ban outright. -->
+		<module name="IllegalTokenText">
+			<property name="tokens" value="STRING_LITERAL"/>
+			<property name="format" value="(?i)(select|insert|update|delete)\s+.*\s+(from|into|set)\s+.*\+"/>
+			<property name="message"
+				value="Concatenated SQL/JPQL detected. Use bound parameters (:name or ?1), never string concatenation."/>
+		</module>
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="printStackTrace\(\)"/>
+			<property name="message" value="Do not printStackTrace(); log it, or let it propagate."/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="System\.(out|err)\.print"/>
+			<property name="message" value="Do not print to stdout/stderr; use a logger."/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+
+		<!-- Constructor injection only. Also enforced by ArchUnit; belt and braces,
+		     because this is the one an agent reaches for by default. -->
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="^\s*@Autowired\s*$"/>
+			<property name="message"
+				value="Field injection is not allowed. Use constructor injection."/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+
+	</module>
+</module>

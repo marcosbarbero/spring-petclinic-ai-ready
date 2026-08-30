@@ -29,7 +29,9 @@ step "1/5  formatting"
 
 step "2/5  lint"
 ./mvnw -q checkstyle:check@nohttp-checkstyle-validation \
-  || fail "lint / checkstyle"
+  || fail "lint / nohttp"
+./mvnw -q checkstyle:check@quality-checkstyle-validation \
+  || fail "lint / code quality (magic numbers, complexity, injection surface)"
 
 step "3/5  architecture rules"
 ./mvnw -q test -Dtest='ArchitectureRulesTest' -Dsurefire.failIfNoSpecifiedTests=false \

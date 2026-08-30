@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 class VetController {
 
+	private static final int PAGE_SIZE = 5;
+
 	private final VetRepository vetRepository;
 
 	public VetController(VetRepository vetRepository) {
@@ -57,8 +59,7 @@ class VetController {
 	}
 
 	private Page<Vet> findPaginated(int page) {
-		int pageSize = 5;
-		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE);
 		return vetRepository.findAll(pageable);
 	}
 
