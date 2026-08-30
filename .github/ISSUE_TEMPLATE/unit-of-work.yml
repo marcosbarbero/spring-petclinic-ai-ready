@@ -1,15 +1,32 @@
 name: Unit of work
 description: One self-contained change, small enough for a single agent session
 title: "[unit] "
-labels: ["tier-1"]
+labels: ["needs-tier"]
 body:
   - type: markdown
     attributes:
       value: |
-        Every field below is **required**. That is the point — a markdown template is a
-        suggestion people delete; a form with required fields is a gate.
-        If you cannot fill this in, the ticket is not ready to be implemented, by a
-        person or by an agent.
+        Every field is **required**. That is the point — a markdown template is a
+        suggestion people delete; a form is a gate.
+
+        If you cannot fill this in, the ticket is not ready to be implemented — by an
+        agent *or* by a person who wasn't in the conversation where it was decided.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context — what is broken, and why does it matter?
+      description: >
+        The background someone needs to understand the change. What happens today, who
+        it affects, and what goes wrong if we leave it. Do not skip this because "it's
+        obvious" — it is only obvious to the people in the room right now.
+      placeholder: |
+        PetValidator requires birthDate to be present but accepts any value, so a pet
+        can be registered as born in 2087. Nothing downstream rejects it, so the bad row
+        reaches the database and every age calculation built on it is wrong from then on.
+    validations:
+      required: true
+
   - type: textarea
     id: outcome
     attributes:
@@ -18,25 +35,31 @@ body:
       placeholder: A pet can no longer be saved with a birth date in the future.
     validations:
       required: true
-  - type: dropdown
-    id: tier
+
+  - type: textarea
+    id: requirements
     attributes:
-      label: Risk tier
-      description: The tier decides how this lands, not how carefully it is written.
-      options:
-        - "tier-1 — low: validation, mappers, docs. Gates decide, auto-merge."
-        - "tier-2 — medium: CRUD, internal services. Auto-merge, notify."
-        - "tier-3 — high: authn/authz, payments, migrations, public API. Human sign-off, never auto."
+      label: Requirements
+      description: >
+        A numbered list of what the system MUST do. These are the specification.
+        The scenarios below are how you PROVE each one — they are not a substitute.
+        If a requirement has no scenario, it will not get tested; if a scenario has no
+        requirement, it is scope creep.
+      value: |
+        1.
+        2.
+        3.
     validations:
       required: true
+
   - type: textarea
     id: gherkin
     attributes:
-      label: Acceptance criteria (Gherkin)
+      label: Test scenarios (Gherkin)
       description: >
-        At least TWO scenarios. One happy path is not acceptance criteria — cover the
-        boundary. If you cannot express it as Given/When/Then, the requirement is not
-        clear enough to implement.
+        How each requirement is proven. At least TWO scenarios — one happy path is not
+        acceptance criteria, cover the boundary. If you cannot express it as
+        Given/When/Then, the requirement is not yet clear enough to implement.
       render: gherkin
       value: |
         Scenario: the happy path
@@ -50,30 +73,54 @@ body:
           Then
     validations:
       required: true
+
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Risk tier — how much can this break?
+      description: >
+        NOT how hard the work is. How big the blast radius is if it is wrong. The tier
+        decides how the change lands, not how carefully it is written — everything gets
+        the same gates. Tier 1 can merge on green because a mistake shows a wrong message
+        on a form. Tier 3 never auto-merges because a mistake loses data, moves money, or
+        grants access. If you are unsure between two, pick the higher one.
+      options:
+        - "tier-1 (low) — validation, mappers, docs, tests. Worst case: a form behaves oddly. Merges on green."
+        - "tier-2 (medium) — CRUD endpoints, internal services. Worst case: a feature misbehaves for real users. Merges on green, human notified."
+        - "tier-3 (high) — auth, payments, migrations, public API. Worst case: data loss, money, or access. Never auto-merges; a human signs off on intent."
+    validations:
+      required: true
+
   - type: textarea
     id: constraints
     attributes:
       label: Constraints
-      description: Files to touch, patterns to follow, and explicitly what must NOT change.
+      description: >
+        Which files to touch, which patterns to follow, and explicitly what must NOT
+        change. "Do not modify existing tests" belongs here almost every time — it is
+        what stops a stuck agent deleting its way to green.
       value: |
         - Do not modify existing tests.
         - Change only:
     validations:
       required: true
+
   - type: textarea
     id: out_of_scope
     attributes:
       label: Out of scope
+      description: What someone might reasonably assume is included, but is not.
     validations:
       required: true
+
   - type: checkboxes
     id: dod
     attributes:
       label: Definition of done
       options:
+        - label: "Every requirement maps to at least one scenario, and every scenario to a test"
+          required: true
         - label: "`./mvnw verify` green — format, lint, arch rules, tests, coverage"
           required: true
         - label: "`./mvnw -Pmutation verify` above threshold"
-          required: true
-        - label: "Tests named for behaviour, not for the method under test"
           required: true

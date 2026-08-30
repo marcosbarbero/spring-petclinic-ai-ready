@@ -86,8 +86,16 @@ def main() -> int:
         problems.append("only one scenario — the boundary case is missing")
     if not tier:
         problems.append("no tier-1/tier-2/tier-3 label — the tier decides how this lands")
+    if not section(body, "context"):
+        problems.append("no Context section — nothing explains what is broken or why")
     if not section(body, "outcome"):
         problems.append("no Outcome section")
+    reqs = re.findall(r"^\s*\d+[.)]\s+\S", body, re.M)
+    if not section(body, "requirements") or not reqs:
+        problems.append("no numbered Requirements — scenarios prove requirements, "
+                        "they do not replace them")
+    elif len(scen) < len(reqs):
+        problems.append(f"{len(reqs)} requirement(s) but only {len(scen)} scenario(s)")
     if not section(body, "constraints"):
         problems.append("no Constraints section — nothing says what must NOT change")
     if issue.get("state") != "OPEN":
@@ -104,9 +112,11 @@ def main() -> int:
     print(f"# Work brief — issue #{issue['number']}")
     print(f"# {issue['title']}")
     print(f"# tier: {tier}   labels: {', '.join(labels)}\n")
-    print("## Outcome\n" + section(body, "outcome"))
-    print(f"\n## Acceptance criteria — {len(scen)} scenario(s)")
-    print("## Each of these must map to at least one test. They are the definition of done.\n")
+    print("## Context\n" + section(body, "context"))
+    print("\n## Outcome\n" + section(body, "outcome"))
+    print("\n## Requirements — the specification\n" + section(body, "requirements"))
+    print(f"\n## Test scenarios — {len(scen)}, proving the requirements above")
+    print("## Each maps to at least one test. Requirements say WHAT; these say HOW YOU KNOW.\n")
     for s in scen:
         print(s + "\n")
     print("## Constraints\n" + section(body, "constraints"))

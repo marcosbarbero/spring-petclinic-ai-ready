@@ -27,8 +27,18 @@ def main() -> int:
     low = body.lower()
     problems: list[str] = []
 
+    if not re.search(r"##\s*context", low):
+        problems.append("no '## Context' section — nothing explains what is broken or why it matters")
+
     if not re.search(r"##\s*outcome", low):
         problems.append("no '## Outcome' section — state what is true after this ships")
+
+    reqs = re.findall(r"^\s*\d+[.)]\s+\S", body, re.M)
+    if not re.search(r"##\s*requirements", low):
+        problems.append("no '## Requirements' section — Gherkin is how you PROVE a "
+                        "requirement, not a substitute for stating one")
+    elif not reqs:
+        problems.append("'## Requirements' is present but empty — number what the system must do")
 
     gherkin = re.findall(r"scenario:", low)
     if not gherkin:
@@ -51,6 +61,11 @@ def main() -> int:
             "constraints do not forbid modifying existing tests "
             "(the single highest-value constraint in AI-assisted work)")
 
+    if reqs and gherkin and len(gherkin) < len(reqs):
+        problems.append(
+            f"{len(reqs)} requirement(s) but only {len(gherkin)} scenario(s) — "
+            "a requirement with no scenario will not get tested")
+
     words = len(re.findall(r"\w+", body))
     if words < 40:
         problems.append(f"body is {words} words — too thin to implement unattended")
@@ -63,7 +78,8 @@ def main() -> int:
               "cannot implement either. Fix the ticket, not the agent.")
         return 1
 
-    print(f"Issue OK — {len(gherkin)} scenario(s), tier set, constraints present.")
+    print(f"Issue OK — {len(reqs)} requirement(s), {len(gherkin)} scenario(s), "
+          "tier set, context and constraints present.")
     return 0
 
 if __name__ == "__main__":
