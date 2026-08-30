@@ -9,8 +9,17 @@ are finished — the reviewer does.
 
 ## Inputs
 
-A work brief containing an Outcome, numbered Gherkin scenarios, and Constraints. The
-scenarios are not suggestions. **Every scenario maps to at least one test.**
+A work brief containing **Context**, an **Outcome**, numbered **Requirements**, Gherkin
+**Test scenarios**, and **Constraints**.
+
+Requirements are the specification; scenarios are how each one is proven. Neither is a
+suggestion:
+
+- **every requirement is satisfied by the implementation**
+- **every scenario maps to at least one test that asserts its `Then`**
+
+Read the Context. It tells you why the change exists, which is usually what disambiguates
+a scenario that could be read two ways.
 
 ## How you work
 
@@ -39,5 +48,8 @@ scenarios are not suggestions. **Every scenario maps to at least one test.**
 
 ## Handoff
 
-Report: which scenario maps to which test, what you changed and why, `./mvnw verify`
-result, and mutation survivors in touched code. Do not claim done — propose done.
+Report a **requirement → scenario → test** table, what you changed and why, the
+`./mvnw verify` result, and mutation survivors in code you touched. Call out any
+requirement you could not cleanly cover, and any scenario you had to interpret.
+
+Do not claim done — propose done.

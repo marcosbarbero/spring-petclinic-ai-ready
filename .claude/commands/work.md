@@ -29,6 +29,21 @@ script does. You are used only where judgement is genuinely required.
 - **exit 0** → continue. The brief it printed is now your single source of truth; prefer
   it over re-reading the issue.
 
+The brief has five parts, and they are not interchangeable:
+
+| | |
+|---|---|
+| **Context** | what is broken today and why it matters — read it, it is why the change exists |
+| **Outcome** | one sentence: what is true afterwards |
+| **Requirements** | numbered. **The specification** — what the system must do |
+| **Test scenarios** | Gherkin. **The verification** — how you prove each requirement |
+| **Constraints** | what must not change |
+
+Requirements and scenarios are different things. A requirement with no scenario will not
+get tested; a scenario with no requirement is scope creep. `issue_context.py` already
+refused the ticket if there are fewer scenarios than requirements — but it cannot tell
+whether they line up *semantically*. That is your job in step 2.
+
 Then take the branch:
 
 ```bash
@@ -40,7 +55,10 @@ git switch -c issue-<number>
 Produce, before touching any code:
 
 - the **Outcome**, restated in one sentence
-- a numbered list of the **scenarios**, each with the test name you will write for it
+- a **requirement → scenario → test** table. One row per requirement, naming the scenario
+  that proves it and the test you will write. **If a requirement has no scenario that
+  covers it, stop and say so** — that is a gap in the ticket, not something to improvise
+  around.
 - the **blast radius** — every file you expect to touch
 - an explicit **architecture check**: does this cross a slice boundary
   (`owner` ↔ `vet`, or anything into `model`)? If yes, **stop and say so.**
@@ -61,9 +79,9 @@ it skipped a step; send it back rather than working around the hook.
 
 ## 4 · Review  (delegate to `reviewer`)
 
-Dispatch the **reviewer** subagent with the brief and the diff. Its only question is
-whether the implementation satisfies the **product requirements and test scenarios** —
-not whether the code is pretty. Formatting, architecture, coverage and mutation are
+Dispatch the **reviewer** subagent with the brief and the diff. Its only question is whether the implementation satisfies the **numbered requirements**,
+as proven by the **test scenarios** — not whether the code is pretty. It checks both
+links in that chain: requirement → scenario, and scenario → asserting test. Formatting, architecture, coverage and mutation are
 already decided by gates; re-reviewing them is the reviewer-fatigue anti-pattern this
 whole repo exists to eliminate.
 
@@ -100,7 +118,7 @@ never `--no-verify` (it is denied anyway).
 Then open the PR with `gh pr create`, and in the body:
 
 - `Closes #<number>`
-- a table mapping **each scenario → the test that proves it**
+- a table mapping **each requirement → its scenario → the test that proves it**
 - the mutation score, and any surviving mutants in touched code with justification
 - the review verdict and how many rounds it took
 
