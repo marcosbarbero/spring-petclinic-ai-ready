@@ -91,6 +91,23 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area — which feature slice does this belong to?
+      description: >
+        The slice that owns this change. Naming it here means the agent is told where to
+        work instead of searching for it — see `.claude/tools/arch_map.py list`.
+        If the change genuinely spans two slices, stop: that is a design decision and
+        probably two tickets.
+      options:
+        - "area:owner — owners, pets, visits"
+        - "area:vet — veterinarians and specialties"
+        - "area:system — cross-cutting web/cache config, error pages"
+        - "area:model — shared kernel (BaseEntity, NamedEntity, Person)"
+    validations:
+      required: true
+
   - type: textarea
     id: constraints
     attributes:

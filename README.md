@@ -80,6 +80,30 @@ tokens; `mutation-survivors` returns the same finding in a few hundred.
 **Deterministic first. Agent on failure.** Use the cheapest tool that can answer the
 question; escalate to a model only when it fails.
 
+## The architecture map
+
+`docs/architecture/mapping.json` records the package structure as data: slices, paths,
+owned classes, and which slice may depend on which.
+
+```bash
+.claude/tools/arch_map.py list        # slices + responsibilities
+.claude/tools/arch_map.py get owner   # paths, owned classes, dependency rules
+.claude/tools/arch_map.py check       # map vs tree — runs in pre-push
+```
+
+Without it, "add validation to pet birth dates" starts with an agent globbing the tree,
+grepping for `Pet` and opening half a dozen files to infer the structure — a few thousand
+tokens spent rediscovering something that hasn't changed since 2013, and rediscovered
+again next session. **The structure is a fact about the repo, so it lives in a file
+rather than in a model's reasoning.**
+
+Issues carry an `area:` label, so `/work` inlines the relevant slice straight into the
+brief: the agent is *told* where to work rather than searching for it.
+
+`docs/architecture/README.md` is generated from the map. `arch_map.py check` fails the
+build on drift — a map that disagrees with the tree sends an agent confidently to the
+wrong place, which is worse than no map at all.
+
 ## The workflow
 
 ```

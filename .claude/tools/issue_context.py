@@ -63,6 +63,22 @@ def scenarios(body: str) -> list[str]:
     return found
 
 
+def architecture(area: str | None) -> str:
+    """Inline the slice's map entry so the agent never has to search for the code.
+
+    Deterministic lookup beats exploration: the structure is a fact about the repo,
+    not something to rediscover with grep every session.
+    """
+    if not area:
+        return ""
+    try:
+        out = subprocess.run([".claude/tools/arch_map.py", "get", area],
+                             capture_output=True, text=True, timeout=15)
+        return out.stdout.strip() if out.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
 def section(body: str, name: str) -> str:
     m = re.search(rf"#+\s*{name}\s*\n(.*?)(?=\n#+\s|\Z)", body, re.I | re.S)
     return m.group(1).strip() if m else ""
@@ -77,6 +93,7 @@ def main() -> int:
     body = issue.get("body") or ""
     labels = [l["name"] for l in issue.get("labels", [])]
     tier = next((l for l in labels if re.fullmatch(r"tier-[123]", l)), None)
+    area = next((l.split(":", 1)[1] for l in labels if l.startswith("area:")), None)
 
     problems: list[str] = []
     scen = scenarios(body)
@@ -86,6 +103,9 @@ def main() -> int:
         problems.append("only one scenario — the boundary case is missing")
     if not tier:
         problems.append("no tier-1/tier-2/tier-3 label — the tier decides how this lands")
+    if not area:
+        problems.append("no area: label — say which feature slice owns this "
+                        "(see .claude/tools/arch_map.py list)")
     if not section(body, "context"):
         problems.append("no Context section — nothing explains what is broken or why")
     if not section(body, "outcome"):
@@ -111,7 +131,11 @@ def main() -> int:
 
     print(f"# Work brief — issue #{issue['number']}")
     print(f"# {issue['title']}")
-    print(f"# tier: {tier}   labels: {', '.join(labels)}\n")
+    print(f"# tier: {tier}   area: {area}   labels: {', '.join(labels)}\n")
+    arch = architecture(area)
+    if arch:
+        print("## Where this lives  (from the architecture map — do not go looking)")
+        print(arch + "\n")
     print("## Context\n" + section(body, "context"))
     print("\n## Outcome\n" + section(body, "outcome"))
     print("\n## Requirements — the specification\n" + section(body, "requirements"))

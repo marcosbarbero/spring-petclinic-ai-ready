@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "style": {
+    "name": "Package by feature (vertical slices)",
+    "summary": "Each feature slice owns its entities, controllers, repositories and validators. Not layered: there is no controller/ service/ repository/ split.",
+    "shared_kernel": "model",
+    "adr": "docs/adr/0001-package-by-feature.md",
+    "enforced_by": "src/test/java/org/springframework/samples/petclinic/architecture/ArchitectureRulesTest.java"
+  },
+  "root_package": "org.springframework.samples.petclinic",
+  "slices": {
+    "model": {
+      "package": "org.springframework.samples.petclinic.model",
+      "source_path": "src/main/java/org/springframework/samples/petclinic/model",
+      "test_path": "src/test/java/org/springframework/samples/petclinic/model",
+      "responsibility": "Shared kernel. Base types every slice builds on. No business rules of its own.",
+      "owns": ["BaseEntity", "NamedEntity", "Person"],
+      "may_depend_on": [],
+      "must_not_depend_on": ["owner", "vet", "system", "org.springframework.web", "jakarta.servlet"],
+      "notes": "A dependency from here into a feature slice inverts the whole structure. Also must stay usable without a servlet container."
+    },
+    "owner": {
+      "package": "org.springframework.samples.petclinic.owner",
+      "source_path": "src/main/java/org/springframework/samples/petclinic/owner",
+      "test_path": "src/test/java/org/springframework/samples/petclinic/owner",
+      "responsibility": "Owners, their pets, and pet visits. Everything a clinic customer touches.",
+      "owns": ["Owner", "Pet", "PetType", "Visit", "OwnerController", "PetController",
+               "VisitController", "OwnerRepository", "PetTypeRepository", "PetValidator",
+               "PetTypeFormatter"],
+      "entrypoints": {
+        "web": ["OwnerController", "PetController", "VisitController"],
+        "validation": ["PetValidator"],
+        "persistence": ["OwnerRepository", "PetTypeRepository"]
+      },
+      "may_depend_on": ["model"],
+      "must_not_depend_on": ["vet"],
+      "notes": "Pet form validation lives in PetValidator, NOT as annotations on the Pet entity - the entity is shared with the import path."
+    },
+    "vet": {
+      "package": "org.springframework.samples.petclinic.vet",
+      "source_path": "src/main/java/org/springframework/samples/petclinic/vet",
+      "test_path": "src/test/java/org/springframework/samples/petclinic/vet",
+      "responsibility": "Veterinarians and their specialties.",
+      "owns": ["Vet", "Vets", "Specialty", "VetController", "VetRepository"],
+      "entrypoints": {
+        "web": ["VetController"],
+        "persistence": ["VetRepository"]
+      },
+      "may_depend_on": ["model"],
+      "must_not_depend_on": ["owner"],
+      "notes": "Vets and owners are deliberately unaware of each other. If a feature seems to need both, that is a design conversation."
+    },
+    "system": {
+      "package": "org.springframework.samples.petclinic.system",
+      "source_path": "src/main/java/org/springframework/samples/petclinic/system",
+      "test_path": "src/test/java/org/springframework/samples/petclinic/system",
+      "responsibility": "Cross-cutting web and cache configuration, error pages, welcome page.",
+      "owns": ["CacheConfiguration", "CrashController", "WebConfiguration", "WelcomeController"],
+      "may_depend_on": ["model"],
+      "must_not_depend_on": [],
+      "notes": "Infrastructure, not a feature. Do not put business rules here."
+    }
+  }
+}

@@ -11,6 +11,7 @@ parsing prose and cannot drift from the registry.
 
 | key | what it does | use when |
 |---|---|---|
+| `arch-map` | Where code lives: slices, paths, owned classes, dependency rules | before searching the tree for anything — locate by slice instead of globbing |
 | `check-issue` | Validate a local issue file: Gherkin, tier, constraints, outcome | before starting work from a markdown ticket, or in CI on issue open |
 | `coverage-gaps` | Uncovered lines, scoped to the files changed on this branch | the coverage gate failed, or you need to know what is untested in your diff |
 | `issue-context` | GitHub issue -> validated work brief; refuses bad tickets, stops on tier-3 | step 1 of /work, always, before any planning or code |

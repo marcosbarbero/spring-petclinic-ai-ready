@@ -36,6 +36,8 @@ step "2/5  lint"
 step "3/5  tool registry + architecture rules"
 .claude/tools/tool_mapping.py check \
   || fail "tool registry drift — an unregistered tool is an undiscoverable tool"
+.claude/tools/arch_map.py check \
+  || fail "architecture map drift — the map would send an agent to the wrong place"
 
 ./mvnw -q test -Dtest='ArchitectureRulesTest' -Dsurefire.failIfNoSpecifiedTests=false \
   || fail "architecture rules — you crossed a package boundary"

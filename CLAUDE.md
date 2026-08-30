@@ -8,28 +8,24 @@ Keep this file short. It is loaded into every session, so every line here costs 
 on every turn. Anything that can be a *test* should be a test, not a sentence in this
 file. **An instruction is a suggestion. A failing build is not.**
 
-## Architecture
+## Architecture — look it up, don't explore
 
-Package **by feature**, not by layer:
+Package **by feature**, not by layer. Slices are independent; `model` is the shared
+kernel. **Do not glob the tree to find things** — the structure is a fact, and it is
+recorded:
 
+```bash
+.claude/tools/arch_map.py list          # slices + what each is responsible for
+.claude/tools/arch_map.py get owner     # paths, owned classes, dependency rules
+.claude/tools/arch_map.py rules         # what may depend on what
 ```
-petclinic/
-  owner/    Owner, Pet, Visit + their controllers, repositories, validators
-  vet/      Vet, Specialty + controller and repository
-  system/   cross-cutting web/cache config, error pages
-  model/    shared kernel: BaseEntity, NamedEntity, Person
-```
 
-Rules, enforced by `ArchitectureRulesTest`:
+The work brief already inlines the map entry for the issue's `area:` label, so in a
+`/work` session you usually need none of these — you have been told where to work.
 
-- `owner` and `vet` **must not** depend on each other.
-- `model` **must not** depend on any feature package. It is the shared kernel.
-- No cycles between packages.
-- Constructor injection only. Never `@Autowired` on a field.
-- `*Repository` types are interfaces, inside a feature package.
-
-If a change seems to need a cross-feature dependency, **stop and say so**. That is a
-design decision, not an import. See `docs/adr/0001-package-by-feature.md`.
+Rules are enforced by `ArchitectureRulesTest`, not by this file. If a change seems to
+need a cross-slice dependency (`owner` ↔ `vet`, or anything into `model`), **stop and say
+so** — that is a design decision. See `docs/adr/0001-package-by-feature.md`.
 
 ## Testing
 

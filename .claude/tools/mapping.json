@@ -1,6 +1,12 @@
 {
-  "version": 1,
   "tools": {
+    "arch-map": {
+      "example": ".claude/tools/arch_map.py get owner",
+      "path": ".claude/tools/arch_map.py",
+      "replaces": "globbing and grepping to rediscover the package structure every session",
+      "summary": "Where code lives: slices, paths, owned classes, dependency rules",
+      "use_when": "before searching the tree for anything \u2014 locate by slice instead of globbing"
+    },
     "check-issue": {
       "example": ".claude/tools/check_issue.py docs/issues/pet-birthdate.md",
       "path": ".claude/tools/check_issue.py",
@@ -29,5 +35,6 @@
       "summary": "Surviving mutants and where they are, in ~15 lines",
       "use_when": "after -Pmutation, or whenever asked to improve the mutation score"
     }
-  }
+  },
+  "version": 1
 }
