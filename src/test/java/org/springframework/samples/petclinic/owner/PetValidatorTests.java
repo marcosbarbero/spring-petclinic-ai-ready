@@ -23,11 +23,13 @@ import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.MapBindingResult;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,12 +56,20 @@ class PetValidatorTests {
 
 	private static final LocalDate petBirthDate = LocalDate.of(1990, 1, 1);
 
+	private static final String leoName = "Leo";
+
 	@BeforeEach
 	void setUp() {
 		petValidator = new PetValidator();
 		pet = new Pet();
 		petType = new PetType();
 		errors = new MapBindingResult(new HashMap<>(), "pet");
+	}
+
+	private String[] errorCodesFor(String field) {
+		FieldError fieldError = errors.getFieldError(field);
+		assertThat(fieldError).as("expected a field error on '%s'", field).isNotNull();
+		return fieldError.getCodes();
 	}
 
 	@Test
@@ -82,6 +92,30 @@ class PetValidatorTests {
 		petValidator.validate(pet, errors);
 
 		assertFalse(errors.hasErrors());
+	}
+
+	@Test
+	void acceptsBirthDateInThePast() {
+		petType.setName(petTypeName);
+		pet.setName(leoName);
+		pet.setType(petType);
+		pet.setBirthDate(LocalDate.of(2020, 1, 15));
+
+		petValidator.validate(pet, errors);
+
+		assertThat(errors.hasFieldErrors("birthDate")).isFalse();
+	}
+
+	@Test
+	void acceptsBirthDateOfToday() {
+		petType.setName(petTypeName);
+		pet.setName(leoName);
+		pet.setType(petType);
+		pet.setBirthDate(LocalDate.now());
+
+		petValidator.validate(pet, errors);
+
+		assertThat(errors.hasFieldErrors("birthDate")).isFalse();
 	}
 
 	@Nested
@@ -120,6 +154,30 @@ class PetValidatorTests {
 			petValidator.validate(pet, errors);
 
 			assertTrue(errors.hasFieldErrors("birthDate"));
+		}
+
+		@Test
+		void rejectsBirthDateInTheFuture() {
+			petType.setName(petTypeName);
+			pet.setName(leoName);
+			pet.setType(petType);
+			pet.setBirthDate(LocalDate.now().plusDays(1));
+
+			petValidator.validate(pet, errors);
+
+			assertThat(errorCodesFor("birthDate")).contains("typeMismatch.birthDate");
+		}
+
+		@Test
+		void rejectsMissingBirthDateAsRequired() {
+			petType.setName(petTypeName);
+			pet.setName(leoName);
+			pet.setType(petType);
+			pet.setBirthDate(null);
+
+			petValidator.validate(pet, errors);
+
+			assertThat(errorCodesFor("birthDate")).contains("required");
 		}
 
 		@Test
