@@ -14,6 +14,13 @@
       "summary": "Validate a local issue file: Gherkin, tier, constraints, outcome",
       "use_when": "before starting work from a markdown ticket, or in CI on issue open"
     },
+    "check-test-determinism": {
+      "example": ".claude/tools/check_test_determinism.py --audit",
+      "path": ".claude/tools/check_test_determinism.py",
+      "replaces": "discovering at 00:01 UTC that a test was dated by when it ran",
+      "summary": "Gate: tests must not read the wall clock; ratchets the existing backlog down",
+      "use_when": "BEFORE writing any test that involves a date or time \u2014 and it runs in `./mvnw verify` either way"
+    },
     "coverage-gaps": {
       "example": ".claude/tools/coverage_gaps.py            # --all for the whole module",
       "path": ".claude/tools/coverage_gaps.py",

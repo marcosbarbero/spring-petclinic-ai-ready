@@ -35,6 +35,7 @@
     <libsass.version>0.3.4</libsass.version>
     <lifecycle-mapping>1.0.0</lifecycle-mapping>
     <maven-checkstyle.version>3.6.0</maven-checkstyle.version>
+    <exec-maven.version>3.5.0</exec-maven.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
     <spring-format.version>0.0.47</spring-format.version>
   </properties>
@@ -269,6 +270,27 @@
             <goals>
               <goal>check</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Tests must not read the wall clock. A ratchet, not a wall: the committed
+        baseline grandfathers what already exists and the count can only go down.
+        Bound to validate so the local hook and CI run the SAME entry point.
+        See docs/adr/0002-deterministic-time-in-tests.md -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven.version}</version>
+        <executions>
+          <execution>
+            <id>test-determinism-gate</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>${basedir}/.claude/tools/check_test_determinism.py</executable>
+            </configuration>
           </execution>
         </executions>
       </plugin>

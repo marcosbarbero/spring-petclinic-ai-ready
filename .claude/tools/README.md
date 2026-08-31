@@ -13,6 +13,7 @@ parsing prose and cannot drift from the registry.
 |---|---|---|
 | `arch-map` | Where code lives: slices, paths, owned classes, dependency rules | before searching the tree for anything — locate by slice instead of globbing |
 | `check-issue` | Validate a local issue file: Gherkin, tier, constraints, outcome | before starting work from a markdown ticket, or in CI on issue open |
+| `check-test-determinism` | Gate: tests must not read the wall clock; ratchets the existing backlog down | BEFORE writing any test that involves a date or time — and it runs in `./mvnw verify` either way |
 | `coverage-gaps` | Uncovered lines, scoped to the files changed on this branch | the coverage gate failed, or you need to know what is untested in your diff |
 | `issue-context` | GitHub issue -> validated work brief; refuses bad tickets, stops on tier-3 | step 1 of /work, always, before any planning or code |
 | `lexicon` | Durable memory: how we solved this class of problem before | BEFORE working anything out from scratch — search it first; add an entry after |
