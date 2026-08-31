@@ -1,11 +1,15 @@
-# 2. Tests do not read the wall clock
+# ADR 0002 — Tests do not read the wall clock
 
-Date: 2026-08-31
+**Status:** proposed · **Date:** 2026-08-31 · **Approved by:** _pending — PR #9_
 
-## Status
+Proposed, not accepted: this ADR was drafted by an agent and is unmerged. It becomes
+accepted when a human merges PR #9, and whoever does that is the approver — record them
+on the line above. The gates can decide whether the code works; they cannot decide
+whether this was the right rule to add, and an agent marking its own design decision
+"accepted" is the agent approving itself.
 
-Accepted. Enforced by `.claude/tools/check_test_determinism.py`, bound to the Maven
-`validate` phase. Backlog tracked in issue #8.
+Enforced, once accepted, by `.claude/tools/check_wall_clock_in_tests.py`, bound to the
+Maven `validate` phase. Backlog tracked in issue #8.
 
 ## Context
 
@@ -27,7 +31,7 @@ Wall-clock time sources are banned in `src/test/java` and the ban is enforced by
 build, not by review.
 
 **As a ratchet, not a wall.** A committed baseline —
-`.claude/tools/test_determinism_baseline.json` — records how many violations each file
+`.claude/tools/wall_clock_baseline.json` — records how many violations each file
 had when the gate landed. The gate does not judge whether a violation is acceptable; it
 judges whether the count went up. On day one actual equals baseline everywhere, the build
 is green, and no existing file changed. Adding one more fails, *including in a file that

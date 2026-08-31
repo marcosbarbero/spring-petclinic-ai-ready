@@ -14,13 +14,6 @@
       "summary": "Validate a local issue file: Gherkin, tier, constraints, outcome",
       "use_when": "before starting work from a markdown ticket, or in CI on issue open"
     },
-    "check-test-determinism": {
-      "example": ".claude/tools/check_test_determinism.py --audit",
-      "path": ".claude/tools/check_test_determinism.py",
-      "replaces": "discovering at 00:01 UTC that a test was dated by when it ran",
-      "summary": "Gate: tests must not read the wall clock; ratchets the existing backlog down",
-      "use_when": "BEFORE writing any test that involves a date or time \u2014 and it runs in `./mvnw verify` either way"
-    },
     "coverage-gaps": {
       "example": ".claude/tools/coverage_gaps.py            # --all for the whole module",
       "path": ".claude/tools/coverage_gaps.py",
@@ -55,6 +48,13 @@
       "replaces": "gh pr create with a body nobody checked against the ticket",
       "summary": "Open a PR, or refuse: validates the template against the issue's scenarios",
       "use_when": "the ONLY way to open a PR here \u2014 `gh pr create` is denied"
+    },
+    "wall-clock-in-tests": {
+      "example": ".claude/tools/check_wall_clock_in_tests.py --audit",
+      "path": ".claude/tools/check_wall_clock_in_tests.py",
+      "replaces": "discovering at 00:01 UTC that a test was dated by when it ran",
+      "summary": "Gate: no LocalDate.now() & friends in tests; ratchets the existing backlog down",
+      "use_when": "BEFORE writing any test that involves a date or time \u2014 and it runs in `./mvnw verify` either way"
     }
   },
   "version": 1

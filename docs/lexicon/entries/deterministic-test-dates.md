@@ -11,7 +11,7 @@ A test that needs a date reaches for LocalDate.now(), Instant.now(), new Date() 
 
 ## Solution
 
-Use a literal date: LocalDate.of(2020, 1, 15). If the test needs to control what PRODUCTION thinks today is - a boundary test for 'not in the future', say - a literal is not enough on its own, because production calls LocalDate.now() internally; production must take an injected java.time.Clock and the test passes Clock.fixed(instant, ZoneOffset.UTC). If a call genuinely must read the wall clock, end the line with '// allow-wall-clock: <reason>'; the marker requires a reason, not a bare tag. This is enforced by .claude/tools/check_test_determinism.py, bound to the validate phase, so ./mvnw verify fails on a new violation.
+Use a literal date: LocalDate.of(2020, 1, 15). If the test needs to control what PRODUCTION thinks today is - a boundary test for 'not in the future', say - a literal is not enough on its own, because production calls LocalDate.now() internally; production must take an injected java.time.Clock and the test passes Clock.fixed(instant, ZoneOffset.UTC). If a call genuinely must read the wall clock, end the line with '// allow-wall-clock: <reason>'; the marker requires a reason, not a bare tag. This is enforced by .claude/tools/check_wall_clock_in_tests.py, bound to the validate phase, so ./mvnw verify fails on a new violation.
 
 ## Why
 

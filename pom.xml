@@ -289,7 +289,7 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>${basedir}/.claude/tools/check_test_determinism.py</executable>
+              <executable>${basedir}/.claude/tools/check_wall_clock_in_tests.py</executable>
             </configuration>
           </execution>
         </executions>

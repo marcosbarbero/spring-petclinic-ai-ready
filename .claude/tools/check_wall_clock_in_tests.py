@@ -34,10 +34,10 @@ history, and CI checks out shallow by default -- a gate that quietly degrades to
 as verified. A committed baseline needs no history at all.
 
 Usage:
-    check_test_determinism.py              # the gate: exit 1 on any regression
-    check_test_determinism.py --audit      # print the backlog, always exit 0
-    check_test_determinism.py --update-baseline   # record reality, then review the diff
-    check_test_determinism.py --self-test  # prove the gate still detects what it claims
+    check_wall_clock_in_tests.py              # the gate: exit 1 on any regression
+    check_wall_clock_in_tests.py --audit      # print the backlog, always exit 0
+    check_wall_clock_in_tests.py --update-baseline   # record reality, then review the diff
+    check_wall_clock_in_tests.py --self-test  # prove the gate still detects what it claims
 
 Wired into the build at the `validate` phase in pom.xml, so `./mvnw verify` runs
 it -- which means the pre-push hook and CI run the same entry point, not two
@@ -55,7 +55,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TEST_ROOT = ROOT / "src" / "test" / "java"
-BASELINE = Path(__file__).resolve().parent / "test_determinism_baseline.json"
+BASELINE = Path(__file__).resolve().parent / "wall_clock_baseline.json"
 
 # Wall-clock time sources. Each reads "now" from the machine, so a test built on
 # one is dated by when it ran. Clock.fixed(...) is deliberately absent -- that is
@@ -153,7 +153,7 @@ def write_baseline(current: dict[str, list], previous: dict[str, dict]) -> None:
         {
             "_comment": "Wall-clock violations in tests, grandfathered so the gate "
                         "could land without breaking the tree. Counts ratchet DOWN "
-                        "only. Regenerate with check_test_determinism.py "
+                        "only. Regenerate with check_wall_clock_in_tests.py "
                         "--update-baseline. Backlog: issue #8.",
             "files": files,
         }, indent=2) + "\n")
@@ -293,7 +293,7 @@ def main() -> int:
         return 1
 
     total = sum(len(h) for h in current.values())
-    print(f"test determinism: OK ({total} baselined, none new) — "
+    print(f"wall clock in tests: OK ({total} baselined, none new) — "
           f"backlog: issue #8")
     return 0
 
