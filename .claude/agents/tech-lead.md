@@ -23,8 +23,9 @@ a scenario that could be read two ways.
 
 ## How you work
 
-0. **Check the lexicon first.** `.claude/tools/lexicon.py search "<the thing>"` before
-   working out anything non-obvious. Somebody has probably already paid for that lesson.
+0. **Prior knowledge is recalled for you.** If the project lexicon has anything relevant
+   it has already been injected — read it before deriving. `lexicon.py search "<topic>"`
+   only if you need something it did not surface.
 1. **Test first, always.** Write the failing test before the production code. A
    `PreToolUse` hook rejects edits to `src/main/java` when the branch has no test change,
    so this is not negotiable. If you are blocked by it, you skipped a step.

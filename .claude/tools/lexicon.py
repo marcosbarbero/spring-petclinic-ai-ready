@@ -33,24 +33,66 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
+import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MAPPING = ROOT / "docs" / "lexicon" / "mapping.json"
+ENTRIES = ROOT / "docs" / "lexicon" / "entries"
 FIELDS = ("title", "problem", "solution", "why")
+
+# One file per entry, not one file for all entries. Search does not care - the tool
+# reads the corpus, the agent never does - but WRITING does: a single shared file is a
+# merge-conflict magnet the moment two branches both record a lesson, and it destroys
+# per-lesson git history. New entry = new file = no conflict, readable diff, real blame.
+
+
+def _parse(path: Path) -> dict:
+    text = path.read_text()
+    m = re.match(r"---\n(.*?)\n---\n(.*)", text, re.S)
+    meta_raw, body = (m.group(1), m.group(2)) if m else ("", text)
+    e: dict = {"tags": [], "seen_in": [], "example": ""}
+    for line in meta_raw.splitlines():
+        if ":" not in line:
+            continue
+        k, v = line.split(":", 1)
+        k, v = k.strip(), v.strip()
+        if k in ("tags", "seen_in"):
+            e[k] = [t.strip() for t in v.strip("[]").split(",") if t.strip()]
+        else:
+            e[k] = v.strip('"')
+    for field in ("problem", "solution", "why"):
+        sec = re.search(rf"##\s*{field}\s*\n(.*?)(?=\n##\s|\Z)", body, re.I | re.S)
+        e[field] = sec.group(1).strip() if sec else ""
+    ex = re.search(r"##\s*example\s*\n+```[a-z]*\n(.*?)```", body, re.I | re.S)
+    if ex:
+        e["example"] = ex.group(1).strip()
+    e.setdefault("title", path.stem)
+    return e
 
 
 def load() -> dict:
-    if not MAPPING.exists():
-        return {"version": 1, "entries": {}}
-    return json.loads(MAPPING.read_text())
+    entries = {}
+    if ENTRIES.is_dir():
+        for f in sorted(ENTRIES.glob("*.md")):
+            entries[f.stem] = _parse(f)
+    return {"version": 1, "entries": entries}
 
 
-def save(d: dict) -> None:
-    MAPPING.parent.mkdir(parents=True, exist_ok=True)
-    MAPPING.write_text(json.dumps(d, indent=2, sort_keys=True) + "\n")
+def save_entry(key: str, e: dict) -> Path:
+    ENTRIES.mkdir(parents=True, exist_ok=True)
+    fm = ["---", f"key: {key}", f"title: {e['title']}",
+          "tags: [" + ", ".join(e.get("tags", [])) + "]"]
+    if e.get("seen_in"):
+        fm.append("seen_in: [" + ", ".join(e["seen_in"]) + "]")
+    fm.append("---")
+    body = ["", "## Problem", "", e["problem"], "", "## Solution", "", e["solution"],
+            "", "## Why", "", e["why"], ""]
+    if e.get("example"):
+        body += ["## Example", "", "```java", e["example"], "```", ""]
+    path = ENTRIES / f"{key}.md"
+    path.write_text("\n".join(fm + body))
+    return path
 
 
 def show(key: str, e: dict, full: bool = True) -> None:
@@ -90,6 +132,38 @@ def cmd_search(d: dict, args: argparse.Namespace) -> int:
         print()
     if len(hits) > 1:
         print("`lexicon.py get <key>` for the reasoning behind any of these.")
+    return 0
+
+
+def cmd_recall(d: dict, args: argparse.Namespace) -> int:
+    """Used by the UserPromptSubmit hook. Ranked, capped, silent on no match."""
+    stop = {"the", "and", "for", "with", "that", "this", "from", "into", "when", "what",
+            "how", "why", "does", "not", "you", "are", "was", "can", "add", "fix", "make",
+            "use", "get", "set", "run", "why", "its", "our", "all", "any", "but", "has"}
+    terms = {w for w in re.findall(r"[a-zA-Z][a-zA-Z0-9_-]{2,}", args.text.lower())
+             if w not in stop}
+    scored = []
+    for key, e in d["entries"].items():
+        title = (key + " " + e["title"]).lower()
+        tags = " ".join(e.get("tags", [])).lower()
+        body = (e["problem"] + " " + e["solution"] + " " + e["why"]).lower()
+        score = sum(3 for t in terms if t in title) + \
+                sum(2 for t in terms if t in tags) + \
+                sum(1 for t in terms if t in body)
+        if score >= args.threshold:
+            scored.append((score, key, e))
+    if not scored:
+        return 0
+    scored.sort(reverse=True, key=lambda x: (x[0], x[1]))
+    print("Relevant prior knowledge from the project lexicon "
+          "(recalled automatically — you have solved these before):\n")
+    for _, key, e in scored[: args.limit]:
+        print(f"- **{e['title']}** (`{key}`)")
+        print(f"  - problem: {e['problem']}")
+        print(f"  - solution: {e['solution']}")
+        if e.get("example"):
+            print(f"  - example: `{e['example'].splitlines()[0]}`")
+    print("\n`.claude/tools/lexicon.py get <key>` for the full reasoning.")
     return 0
 
 
@@ -165,8 +239,8 @@ def cmd_readme(d: dict, _: argparse.Namespace) -> int:
             "  --key spring-error-codes-are-expanded \\",
             '  --title "..." --problem "..." --solution "..." --why "..." \\',
             "  --tags spring,validation", "```", ""]
-    (MAPPING.parent / "README.md").write_text("\n".join(out))
-    print(f"Wrote {MAPPING.parent / 'README.md'}")
+    (ENTRIES.parent / "README.md").write_text("\n".join(out))
+    print(f"Wrote {ENTRIES.parent / 'README.md'}")
     return 0
 
 
@@ -177,8 +251,8 @@ def cmd_add(d: dict, a: argparse.Namespace) -> int:
         "tags": [t.strip() for t in (a.tags or "").split(",") if t.strip()],
         "seen_in": [s.strip() for s in (a.seen_in or "").split(",") if s.strip()],
     }
-    save(d)
-    print(f"Recorded '{a.key}'. Run: lexicon.py readme")
+    path = save_entry(a.key, d["entries"][a.key])
+    print(f"Recorded '{a.key}' -> {path.relative_to(ROOT)}")
     return 0
 
 
@@ -187,6 +261,8 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd")
     s = sub.add_parser("search"); s.add_argument("term")
+    r = sub.add_parser("recall"); r.add_argument("text")
+    r.add_argument("--limit", type=int, default=3); r.add_argument("--threshold", type=int, default=3)
     g = sub.add_parser("get"); g.add_argument("key")
     for n in ("list", "tags", "check", "readme"):
         sub.add_parser(n)
@@ -198,7 +274,7 @@ def main() -> int:
     d = load()
     return {None: cmd_list, "list": cmd_list, "search": cmd_search, "get": cmd_get,
             "tags": cmd_tags, "check": cmd_check, "readme": cmd_readme,
-            "add": cmd_add}[args.cmd](d, args)
+            "recall": cmd_recall, "add": cmd_add}[args.cmd](d, args)
 
 
 if __name__ == "__main__":

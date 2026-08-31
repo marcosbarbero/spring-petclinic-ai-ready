@@ -57,28 +57,30 @@ Docker-dependent tests are excluded by default; `-Pcontainers` restores them (CI
 - Prefer the smallest change that satisfies the acceptance criteria. Do not refactor
   adjacent code you were not asked to touch.
 
-## Memory — check before you derive
+## Memory
 
-We have solved things before. Look them up rather than working them out again:
+Relevant prior knowledge is **injected automatically** — a `UserPromptSubmit` hook scores
+every prompt against the project lexicon and prepends anything that matches. You do not
+need to remember to look; if something applies, it is already above.
 
-```bash
-.claude/tools/lexicon.py search "<what you're stuck on">
-```
-
-Do this **before** reasoning through anything non-obvious — a Spring behaviour, a
-boundary condition, a build failure. It costs one call and usually returns the answer
-plus the reasoning.
-
-**And close the loop.** When something surprises you, costs a wrong turn, or takes real
-effort to work out, record it before you finish:
+To go deeper on a recalled entry, or to check something the hook did not surface:
 
 ```bash
-.claude/tools/lexicon.py add --key ... --title ... --problem ... --solution ... --why ...
+.claude/tools/lexicon.py search "<topic>"
+.claude/tools/lexicon.py get <key>
 ```
 
-The bar is deliberately low. An entry costs a minute and is recalled for free forever.
-This is the only part of the harness that makes it *better* over time rather than merely
-keeping it green.
+**Record what surprised you.** This half cannot be automated — no script can tell whether
+something was non-obvious — so it is on you, and a `Stop` hook will ask if this session
+changed production code without recording anything:
+
+```bash
+.claude/tools/lexicon.py add --key <slug> --title "..." \
+  --problem "..." --solution "..." --why "..." --tags a,b
+```
+
+One file per entry under `docs/lexicon/entries/`, so two branches recording lessons never
+conflict. The bar is low on purpose: a minute now, recalled free forever.
 
 ## Tooling rule
 
