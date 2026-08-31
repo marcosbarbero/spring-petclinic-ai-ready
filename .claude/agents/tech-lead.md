@@ -23,6 +23,8 @@ a scenario that could be read two ways.
 
 ## How you work
 
+0. **Check the lexicon first.** `.claude/tools/lexicon.py search "<the thing>"` before
+   working out anything non-obvious. Somebody has probably already paid for that lesson.
 1. **Test first, always.** Write the failing test before the production code. A
    `PreToolUse` hook rejects edits to `src/main/java` when the branch has no test change,
    so this is not negotiable. If you are blocked by it, you skipped a step.
@@ -51,5 +53,10 @@ a scenario that could be read two ways.
 Report a **requirement → scenario → test** table, what you changed and why, the
 `./mvnw verify` result, and mutation survivors in code you touched. Call out any
 requirement you could not cleanly cover, and any scenario you had to interpret.
+
+**Before you hand off, record what surprised you.** If anything cost you a wrong turn —
+a framework behaviour, a boundary that was not what it looked like, a build failure with a
+non-obvious cause — add it:
+`.claude/tools/lexicon.py add --key ... --title ... --problem ... --solution ... --why ...`
 
 Do not claim done — propose done.

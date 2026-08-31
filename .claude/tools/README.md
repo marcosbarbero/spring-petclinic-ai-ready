@@ -15,6 +15,7 @@ parsing prose and cannot drift from the registry.
 | `check-issue` | Validate a local issue file: Gherkin, tier, constraints, outcome | before starting work from a markdown ticket, or in CI on issue open |
 | `coverage-gaps` | Uncovered lines, scoped to the files changed on this branch | the coverage gate failed, or you need to know what is untested in your diff |
 | `issue-context` | GitHub issue -> validated work brief; refuses bad tickets, stops on tier-3 | step 1 of /work, always, before any planning or code |
+| `lexicon` | Durable memory: how we solved this class of problem before | BEFORE working anything out from scratch — search it first; add an entry after |
 | `mutation-survivors` | Surviving mutants and where they are, in ~15 lines | after -Pmutation, or whenever asked to improve the mutation score |
 
 ## Adding a tool

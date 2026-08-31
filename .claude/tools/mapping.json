@@ -28,6 +28,13 @@
       "summary": "GitHub issue -> validated work brief; refuses bad tickets, stops on tier-3",
       "use_when": "step 1 of /work, always, before any planning or code"
     },
+    "lexicon": {
+      "example": ".claude/tools/lexicon.py search 'error code'",
+      "path": ".claude/tools/lexicon.py",
+      "replaces": "re-deriving the same non-obvious discovery every session",
+      "summary": "Durable memory: how we solved this class of problem before",
+      "use_when": "BEFORE working anything out from scratch \u2014 search it first; add an entry after"
+    },
     "mutation-survivors": {
       "example": ".claude/tools/mutation_survivors.py --limit 10",
       "path": ".claude/tools/mutation_survivors.py",

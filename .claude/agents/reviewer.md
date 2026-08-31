@@ -35,6 +35,11 @@ exists to remove.
    touched? Check `git diff --stat` against the Constraints section.
 
 
+6. **Was anything learned?** If the implementation report describes a surprise, a
+   non-obvious framework behaviour, or a wrong turn, check whether it was recorded:
+   `.claude/tools/lexicon.py search "<the topic>"`. Knowledge that stays in a PR
+   description is knowledge the next session pays for again. Ask for the entry.
+
 ## Verdict
 
 Emit exactly one:

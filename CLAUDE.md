@@ -57,6 +57,29 @@ Docker-dependent tests are excluded by default; `-Pcontainers` restores them (CI
 - Prefer the smallest change that satisfies the acceptance criteria. Do not refactor
   adjacent code you were not asked to touch.
 
+## Memory — check before you derive
+
+We have solved things before. Look them up rather than working them out again:
+
+```bash
+.claude/tools/lexicon.py search "<what you're stuck on">
+```
+
+Do this **before** reasoning through anything non-obvious — a Spring behaviour, a
+boundary condition, a build failure. It costs one call and usually returns the answer
+plus the reasoning.
+
+**And close the loop.** When something surprises you, costs a wrong turn, or takes real
+effort to work out, record it before you finish:
+
+```bash
+.claude/tools/lexicon.py add --key ... --title ... --problem ... --solution ... --why ...
+```
+
+The bar is deliberately low. An entry costs a minute and is recalled for free forever.
+This is the only part of the harness that makes it *better* over time rather than merely
+keeping it green.
+
 ## Tooling rule
 
 **Do not write inline or throwaway scripts.** No `python3 -c '...'` buried in a command,

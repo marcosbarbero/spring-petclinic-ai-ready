@@ -104,6 +104,38 @@ brief: the agent is *told* where to work rather than searching for it.
 build on drift — a map that disagrees with the tree sends an agent confidently to the
 wrong place, which is worse than no map at all.
 
+## Durable memory
+
+`docs/lexicon/mapping.json` records how recurring problems were solved, so the next
+session does not re-derive them.
+
+```bash
+.claude/tools/lexicon.py search "error code"   # have we seen this before?
+.claude/tools/lexicon.py add --key ...         # record what surprised you
+```
+
+Three registries, three questions:
+
+| | |
+|---|---|
+| `tool_mapping.py` | what tools exist |
+| `arch_map.py` | where the code lives |
+| `lexicon.py` | **how we solved this before** |
+
+Every seeded entry is something that was worked out the hard way while building this
+repo — that PIT below 1.19 crashes its minion on JDK 21; that a bare `checkstyle:check`
+silently runs Sun's default ruleset and reports 413 phantom violations; that Spring
+expands `rejectValue` codes so `getCode()` never returns the code you passed.
+
+That last one cost a real agent real tokens to discover during a dry run. It is now one
+`search` away, forever.
+
+**This is the only part of the harness that makes it better over time** rather than
+merely keeping it green. Gates stop bad things escaping; the lexicon stops the same
+lesson being paid for twice. Both agents are told to search it before deriving and to add
+to it before finishing, and the reviewer checks that a lesson in a PR description became
+an entry.
+
 ## The workflow
 
 ```
