@@ -156,12 +156,14 @@ The prompt is an issue number. Everything else lives in the repo.
 5. **Cycle** — bounded at 3 rounds, then escalate. A loop that won't converge is almost
    always an ambiguous requirement, not a stubborn bug.
 6. **Gate** — `./mvnw verify` and `-Pmutation verify`.
-7. **PR** — with a requirement → scenario → test table, so a human reviews intent and
-   evidence.
+7. **PR** — opened by `.claude/tools/open_pr.py`, never `gh pr create` (denied). It
+   refuses a PR that does not close an open issue, is missing a section, omits any of the
+   issue's scenarios from its coverage table, has no mutation evidence, or is tier-3.
 
-Issues are filed through a GitHub **issue form** (`.github/ISSUE_TEMPLATE/unit-of-work.yml`)
-where every field is required. A markdown template is a suggestion people delete; a form
-is a gate.
+Issues are filed through a GitHub **issue form**; PRs are opened through a **tool**. Both
+for the same reason: a template is a suggestion, a gate is not.
+
+
 
 ## Commands
 

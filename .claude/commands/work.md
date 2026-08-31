@@ -115,15 +115,25 @@ git push -u origin issue-<number>
 The pre-push hook runs the whole gate locally. If it rejects the push, fix the cause —
 never `--no-verify` (it is denied anyway).
 
-Then open the PR with `gh pr create`, and in the body:
+Then draft the PR body against `.github/PULL_REQUEST_TEMPLATE.md` and open it with:
 
-- `Closes #<number>`
-- a table mapping **each requirement → its scenario → the test that proves it**
-- the mutation score, and any surviving mutants in touched code with justification
-- the review verdict and how many rounds it took
+```bash
+.claude/tools/open_pr.py --issue <number> --body-file <draft> --dry-run   # check first
+.claude/tools/open_pr.py --issue <number> --body-file <draft>
+```
 
-The PR body is for a human reading **intent and evidence**, not diffs. Assume nobody
-will read the code line by line — that is what the gates were for.
+**`gh pr create` is denied.** Not as a formality — the tool checks things a reviewer
+cannot reasonably check by eye:
+
+- the PR closes an issue, and that issue is still **open**
+- every required section exists and is non-empty
+- **every Gherkin scenario in the issue appears in your coverage table.** Nobody
+  cross-references four scenarios against a markdown table at 6pm; this does.
+- a mutation report exists and is above threshold
+- **tier-3 is refused outright** — high-risk work is opened by a human, not an agent
+
+If it refuses, fix the body. The gates already proved the code works; this proves a human
+can review the *intent* without reading the diff.
 
 ---
 

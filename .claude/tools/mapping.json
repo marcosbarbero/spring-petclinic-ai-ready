@@ -41,6 +41,13 @@
       "replaces": "reading target/pit-reports/**.html (~2MB, ~40k tokens)",
       "summary": "Surviving mutants and where they are, in ~15 lines",
       "use_when": "after -Pmutation, or whenever asked to improve the mutation score"
+    },
+    "open-pr": {
+      "example": ".claude/tools/open_pr.py --issue 1 --body-file draft.md --dry-run",
+      "path": ".claude/tools/open_pr.py",
+      "replaces": "gh pr create with a body nobody checked against the ticket",
+      "summary": "Open a PR, or refuse: validates the template against the issue's scenarios",
+      "use_when": "the ONLY way to open a PR here \u2014 `gh pr create` is denied"
     }
   },
   "version": 1

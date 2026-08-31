@@ -13,7 +13,10 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git switch:*)",
-      "Bash(git checkout -b:*)"
+      "Bash(git checkout -b:*)",
+      "Bash(.claude/tools/open_pr.py:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh pr view:*)"
     ],
     "deny": [
       "Bash(git push --no-verify:*)",
@@ -26,7 +29,9 @@
       "Edit(.claude/hooks/**)",
       "Edit(.claude/settings.json)",
       "Edit(**/architecture/ArchitectureRulesTest.java)",
-      "Edit(.github/workflows/**)"
+      "Edit(.github/workflows/**)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)"
     ]
   },
   "hooks": {
