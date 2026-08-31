@@ -26,8 +26,11 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -84,6 +87,38 @@ class PetValidatorTests {
 		assertFalse(errors.hasErrors());
 	}
 
+	@Test
+	void acceptsBirthDateInThePast() {
+		givenValidPetWithBirthDate(LocalDate.of(2020, 1, 15));
+
+		petValidator.validate(pet, errors);
+
+		assertThat(errors.hasFieldErrors("birthDate")).isFalse();
+	}
+
+	@Test
+	void acceptsBirthDateOfToday() {
+		givenValidPetWithBirthDate(LocalDate.now());
+
+		petValidator.validate(pet, errors);
+
+		assertThat(errors.hasFieldErrors("birthDate")).isFalse();
+	}
+
+	private void givenValidPetWithBirthDate(LocalDate birthDate) {
+		petType.setName(petTypeName);
+		pet.setName("Leo");
+		pet.setType(petType);
+		pet.setBirthDate(birthDate);
+	}
+
+	private List<String> errorCodesOnBirthDate() {
+		return errors.getFieldErrors("birthDate")
+			.stream()
+			.flatMap(fieldError -> Arrays.stream(fieldError.getCodes()))
+			.toList();
+	}
+
 	@Nested
 	class ValidateHasErrors {
 
@@ -132,6 +167,24 @@ class PetValidatorTests {
 			petValidator.validate(pet, errors);
 
 			assertTrue(errors.hasFieldErrors("name"));
+		}
+
+		@Test
+		void rejectsBirthDateInTheFuture() {
+			givenValidPetWithBirthDate(LocalDate.now().plusDays(1));
+
+			petValidator.validate(pet, errors);
+
+			assertThat(errorCodesOnBirthDate()).contains("typeMismatch.birthDate");
+		}
+
+		@Test
+		void rejectsMissingBirthDateAsRequired() {
+			givenValidPetWithBirthDate(null);
+
+			petValidator.validate(pet, errors);
+
+			assertThat(errorCodesOnBirthDate()).contains("required").doesNotContain("typeMismatch.birthDate");
 		}
 
 	}
