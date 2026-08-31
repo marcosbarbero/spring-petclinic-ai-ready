@@ -23,11 +23,13 @@ import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.MapBindingResult;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,6 +55,10 @@ class PetValidatorTests {
 	private static final String petTypeName = "Dog";
 
 	private static final LocalDate petBirthDate = LocalDate.of(1990, 1, 1);
+
+	private static final int MAX_NAME_LENGTH = 50;
+
+	private static final int PREVIOUS_MAX_NAME_LENGTH = 30;
 
 	@BeforeEach
 	void setUp() {
@@ -82,6 +88,54 @@ class PetValidatorTests {
 		petValidator.validate(pet, errors);
 
 		assertFalse(errors.hasErrors());
+	}
+
+	@Test
+	void acceptsNameOfExactlyMaximumLength() {
+		validateWithName("A".repeat(MAX_NAME_LENGTH));
+
+		assertFalse(errors.hasFieldErrors("name"));
+	}
+
+	@Test
+	void rejectsNameLongerThanMaximum() {
+		validateWithName("A".repeat(MAX_NAME_LENGTH + 1));
+
+		assertThat(errors.getFieldError("name")).isNotNull().extracting(FieldError::getCode).isEqualTo("size");
+	}
+
+	@Test
+	void acceptsOrdinaryName() {
+		validateWithName("Leo");
+
+		assertFalse(errors.hasFieldErrors("name"));
+	}
+
+	@Test
+	void acceptsNameOfPreviousMaximumLength() {
+		validateWithName("A".repeat(PREVIOUS_MAX_NAME_LENGTH));
+
+		assertFalse(errors.hasFieldErrors("name"));
+	}
+
+	@Test
+	void rejectsBlankNameAsRequired() {
+		validateWithName("");
+
+		assertThat(errors.getFieldError("name")).isNotNull().extracting(FieldError::getCode).isEqualTo("required");
+	}
+
+	/**
+	 * Validates a pet that is valid in every respect except, possibly, its name, so that
+	 * "name" is the only field under test.
+	 */
+	private void validateWithName(String name) {
+		petType.setName(petTypeName);
+		pet.setName(name);
+		pet.setType(petType);
+		pet.setBirthDate(petBirthDate);
+
+		petValidator.validate(pet, errors);
 	}
 
 	@Nested
@@ -125,7 +179,7 @@ class PetValidatorTests {
 		@Test
 		void validateWithLongPetName() {
 			petType.setName(petTypeName);
-			pet.setName("A".repeat(31));
+			pet.setName("A".repeat(MAX_NAME_LENGTH + 1));
 			pet.setType(petType);
 			pet.setBirthDate(petBirthDate);
 

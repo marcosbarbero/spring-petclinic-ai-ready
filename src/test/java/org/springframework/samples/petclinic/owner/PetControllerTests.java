@@ -58,6 +58,8 @@ class PetControllerTests {
 
 	private static final int TEST_PET_ID = 1;
 
+	private static final int MAX_NAME_LENGTH = 50;
+
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -98,6 +100,16 @@ class PetControllerTests {
 	void processCreationFormSuccess() throws Exception {
 		mockMvc
 			.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID).param("name", "Betty")
+				.param("type", "hamster")
+				.param("birthDate", "2015-02-12"))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(view().name("redirect:/owners/{ownerId}"));
+	}
+
+	@Test
+	void processCreationFormAcceptsRegisteredNameOfMaximumLength() throws Exception {
+		mockMvc
+			.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID).param("name", "A".repeat(MAX_NAME_LENGTH))
 				.param("type", "hamster")
 				.param("birthDate", "2015-02-12"))
 			.andExpect(status().is3xxRedirection())
