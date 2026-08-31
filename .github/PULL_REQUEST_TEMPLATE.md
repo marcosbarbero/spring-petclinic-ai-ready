@@ -1,5 +1,5 @@
 <!--
-  Do not open PRs by hand. Use:  .claude/tools/open_pr.py --issue N --body-file <draft>
+  Do not open PRs by hand. Use:  .claude/tools/pr.py create --issue N --body-file <draft>
   It validates this template, cross-checks the linked issue, and verifies the gates
   actually ran. `gh pr create` is denied in .claude/settings.json for exactly that reason.
 

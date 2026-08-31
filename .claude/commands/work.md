@@ -118,8 +118,8 @@ never `--no-verify` (it is denied anyway).
 Then draft the PR body against `.github/PULL_REQUEST_TEMPLATE.md` and open it with:
 
 ```bash
-.claude/tools/open_pr.py --issue <number> --body-file <draft> --dry-run   # check first
-.claude/tools/open_pr.py --issue <number> --body-file <draft>
+.claude/tools/pr.py create --issue <number> --body-file <draft> --dry-run   # check first
+.claude/tools/pr.py create --issue <number> --body-file <draft>
 ```
 
 **`gh pr create` is denied.** Not as a formality — the tool checks things a reviewer
