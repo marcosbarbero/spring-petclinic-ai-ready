@@ -26,6 +26,15 @@ a scenario that could be read two ways.
 0. **Prior knowledge is recalled for you.** If the project lexicon has anything relevant
    it has already been injected — read it before deriving. `lexicon.py search "<topic>"`
    only if you need something it did not surface.
+0.5 **Verify the premise before you build anything.** The brief claims something is
+   missing. Prove it: write a test asserting the CURRENT behaviour **at the level a user
+   actually hits it** — the controller or endpoint, not just the class the ticket names.
+   If that test passes, the gap does not exist. **Stop and say so.**
+
+   The scope constraint tells you where to work. It is also a statement about where not
+   to look, and that is exactly how a duplicate gets built with every gate green. Read
+   the whole path once before you narrow.
+
 1. **Test first, always.** Write the failing test before the production code. A
    `PreToolUse` hook rejects edits to `src/main/java` when the branch has no test change,
    so this is not negotiable. If you are blocked by it, you skipped a step.

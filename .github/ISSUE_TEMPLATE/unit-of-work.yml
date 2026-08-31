@@ -28,6 +28,23 @@ body:
       required: true
 
   - type: textarea
+    id: current_behaviour
+    attributes:
+      label: Current behaviour — and how you verified it
+      description: >
+        What the system does TODAY, and how you know. Name the file and line, or the test
+        you ran, or the request you made. "It doesn't validate X" is a claim, not a fact,
+        until you have looked at every path that could validate X.
+        This field exists because a ticket once asserted a missing validation that had
+        been implemented and tested for years, in a class the ticket never mentioned.
+      placeholder: |
+        PetValidator only checks birthDate for null (PetValidator.java:56).
+        Verified the form path too: PetController.processCreationForm has no such check
+        (checked lines 100-130), and no test in PetControllerTests covers it.
+    validations:
+      required: true
+
+  - type: textarea
     id: outcome
     attributes:
       label: Outcome

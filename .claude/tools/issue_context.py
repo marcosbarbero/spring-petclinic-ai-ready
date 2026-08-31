@@ -108,6 +108,9 @@ def main() -> int:
                         "(see .claude/tools/arch_map.py list)")
     if not section(body, "context"):
         problems.append("no Context section — nothing explains what is broken or why")
+    if not section(body, "current behaviour"):
+        problems.append("no 'Current behaviour' section — the ticket asserts a gap without "
+                        "saying how it was verified. Unverified premises get implemented.")
     if not section(body, "outcome"):
         problems.append("no Outcome section")
     reqs = re.findall(r"^\s*\d+[.)]\s+\S", body, re.M)
@@ -137,6 +140,11 @@ def main() -> int:
         print("## Where this lives  (from the architecture map — do not go looking)")
         print(arch + "\n")
     print("## Context\n" + section(body, "context"))
+    cur = section(body, "current behaviour")
+    if cur:
+        print("\n## Current behaviour, as claimed by the ticket\n" + cur)
+        print("\n>> VERIFY THIS FIRST. Write a test asserting the current behaviour at the\n"
+              ">> level a user hits it. If it PASSES, the gap does not exist — stop and say so.")
     print("\n## Outcome\n" + section(body, "outcome"))
     print("\n## Requirements — the specification\n" + section(body, "requirements"))
     print(f"\n## Test scenarios — {len(scen)}, proving the requirements above")

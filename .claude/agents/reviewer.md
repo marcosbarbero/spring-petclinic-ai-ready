@@ -40,6 +40,12 @@ exists to remove.
    `.claude/tools/lexicon.py search "<the topic>"`. Knowledge that stays in a PR
    description is knowledge the next session pays for again. Ask for the entry.
 
+7. **Was the premise verified?** Did the implementation confirm the gap actually existed
+   before filling it — at the level a user hits, not just the class the ticket named?
+   Search the diff and the whole request path for existing behaviour that already
+   satisfies the requirement. A correct implementation of a requirement that was already
+   met is still a reject, and every other gate will be green when you find it.
+
 ## Verdict
 
 Emit exactly one:
