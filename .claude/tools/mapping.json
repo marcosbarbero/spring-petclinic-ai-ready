@@ -48,6 +48,7 @@
       "replaces": "discovering at 00:01 UTC that a test was dated by when it ran",
       "summary": "Gate: no LocalDate.now() & friends in tests; ratchets the existing backlog down",
       "use_when": "BEFORE writing any test that involves a date or time \u2014 and it runs in `./mvnw verify` either way"
+    },
     "pr": {
       "example": ".claude/tools/pr.py update --issue 7 --body-file draft.md --dry-run",
       "path": ".claude/tools/pr.py",
