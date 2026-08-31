@@ -1,6 +1,6 @@
 # ADR 0001 — Package by feature, not by layer
 
-**Status:** accepted · **Date:** 2026-08-30
+**Status:** accepted · **Date:** 2026-08-30 · **Approved by:** Marcos Barbero (4a698c4)
 
 ## Context
 

@@ -40,6 +40,8 @@ failing test.
   not `testValidate2`.
 - Cover the boundary, not just the happy path. A validator test that only passes a
   valid value proves nothing — mutation testing will fail you for it.
+- **Literal dates only.** `LocalDate.now()` and friends are rejected at `validate` — use
+  `LocalDate.of(...)`, or inject a `Clock`. See `lexicon.py get deterministic-test-dates`.
 
 Coverage ≥ 90% line / 78% branch (JaCoCo, enforced at `verify`).
 Mutation score ≥ 80% on `owner` and `model` (PIT, `-Pmutation verify`).

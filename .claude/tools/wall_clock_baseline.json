@@ -1,0 +1,21 @@
+{
+  "_comment": "Wall-clock violations in tests, grandfathered so the gate could land without breaking the tree. Counts ratchet DOWN only. Regenerate with check_wall_clock_in_tests.py --update-baseline. Backlog: issue #8.",
+  "files": {
+    "src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java": {
+      "count": 2,
+      "reason": "pre-existing; see issue #8"
+    },
+    "src/test/java/org/springframework/samples/petclinic/owner/PetControllerTests.java": {
+      "count": 1,
+      "reason": "pre-existing; see issue #8"
+    },
+    "src/test/java/org/springframework/samples/petclinic/owner/VisitControllerTests.java": {
+      "count": 2,
+      "reason": "pre-existing; see issue #8"
+    },
+    "src/test/java/org/springframework/samples/petclinic/service/ClinicServiceTests.java": {
+      "count": 5,
+      "reason": "pre-existing; see issue #8"
+    }
+  }
+}
