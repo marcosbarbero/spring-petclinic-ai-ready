@@ -24,6 +24,9 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -83,6 +86,11 @@ class ClinicServiceTests {
 
 	@Autowired
 	protected VetRepository vets;
+
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	private static final int MAX_PET_NAME_LENGTH = 50;
 
 	private final Pageable pageable = Pageable.unpaged();
 
@@ -180,6 +188,33 @@ class ClinicServiceTests {
 		// checks that id has been generated
 		pet = owner6.getPet("bowser");
 		assertThat(pet.getId()).isNotNull();
+	}
+
+	@Test
+	@Transactional
+	void shouldPersistPetNameOfMaximumLength() {
+		String longName = "A".repeat(MAX_PET_NAME_LENGTH);
+		Optional<Owner> optionalOwner = this.owners.findById(6);
+		assertThat(optionalOwner).isPresent();
+		Owner owner6 = optionalOwner.get();
+
+		Pet pet = new Pet();
+		pet.setName(longName);
+		Collection<PetType> petTypes = this.types.findPetTypes();
+		pet.setType(EntityUtils.getById(petTypes, PetType.class, 2));
+		pet.setBirthDate(LocalDate.of(2015, 2, 12));
+		owner6.addPet(pet);
+
+		this.owners.save(owner6);
+		// force a real round-trip through the database rather than the first-level cache
+		this.entityManager.flush();
+		this.entityManager.clear();
+
+		optionalOwner = this.owners.findById(6);
+		assertThat(optionalOwner).isPresent();
+		Pet reloaded = optionalOwner.get().getPet(longName);
+		assertThat(reloaded).isNotNull();
+		assertThat(reloaded.getName()).hasSize(MAX_PET_NAME_LENGTH).isEqualTo(longName);
 	}
 
 	@Test

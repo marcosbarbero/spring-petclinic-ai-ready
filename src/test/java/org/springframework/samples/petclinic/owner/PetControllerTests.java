@@ -36,6 +36,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -57,6 +59,8 @@ class PetControllerTests {
 	private static final int TEST_OWNER_ID = 1;
 
 	private static final int TEST_PET_ID = 1;
+
+	private static final int MAX_NAME_LENGTH = 50;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -104,8 +108,34 @@ class PetControllerTests {
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
+	@Test
+	void processCreationFormAcceptsNameOfMaximumLength() throws Exception {
+		mockMvc
+			.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID).param("name", "A".repeat(MAX_NAME_LENGTH))
+				.param("type", "hamster")
+				.param("birthDate", "2015-02-12"))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(view().name("redirect:/owners/{ownerId}"));
+	}
+
 	@Nested
 	class ProcessCreationFormHasErrors {
+
+		@Test
+		void processCreationFormWithNameLongerThanMaximum() throws Exception {
+			mockMvc
+				.perform(
+						post("/owners/{ownerId}/pets/new", TEST_OWNER_ID).param("name", "A".repeat(MAX_NAME_LENGTH + 1))
+							.param("type", "hamster")
+							.param("birthDate", "2015-02-12"))
+				.andExpect(model().attributeHasErrors("pet"))
+				.andExpect(model().attributeHasFieldErrors("pet", "name"))
+				.andExpect(model().attributeHasFieldErrorCode("pet", "name", "size"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdatePetForm"));
+
+			verify(owners, never()).saveAndFlush(any());
+		}
 
 		@Test
 		void processCreationFormWithBlankName() throws Exception {
