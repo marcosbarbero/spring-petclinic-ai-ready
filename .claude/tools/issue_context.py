@@ -119,7 +119,7 @@ def main() -> int:
                         "saying how it was verified. Unverified premises get implemented.")
     if not section(body, "outcome"):
         problems.append("no Outcome section")
-    reqs = re.findall(r"^\s*\d+[.)]\s+\S", body, re.M)
+    reqs = re.findall(r"^\s*\d+[.)]\s+\S", section(body, "requirements"), re.M)
     if not section(body, "requirements") or not reqs:
         problems.append("no numbered Requirements — scenarios prove requirements, "
                         "they do not replace them")

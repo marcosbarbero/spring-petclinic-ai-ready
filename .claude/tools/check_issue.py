@@ -33,7 +33,8 @@ def main() -> int:
     if not re.search(r"##\s*outcome", low):
         problems.append("no '## Outcome' section — state what is true after this ships")
 
-    reqs = re.findall(r"^\s*\d+[.)]\s+\S", body, re.M)
+    req_sec = re.search(r"##\s*requirements\b[^\n]*\n(.*?)(?=\n##\s|\Z)", body, re.I | re.S)
+    reqs = re.findall(r"^\s*\d+[.)]\s+\S", req_sec.group(1) if req_sec else "", re.M)
     if not re.search(r"##\s*requirements", low):
         problems.append("no '## Requirements' section — Gherkin is how you PROVE a "
                         "requirement, not a substitute for stating one")
