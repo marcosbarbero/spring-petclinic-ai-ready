@@ -19,6 +19,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import java.time.Clock;
+import java.time.LocalDate;
+
 /**
  * <code>Validator</code> for <code>Pet</code> forms.
  * <p>
@@ -33,7 +36,19 @@ public class PetValidator implements Validator {
 
 	private static final String REQUIRED = "required";
 
+	private static final String FUTURE_BIRTH_DATE = "typeMismatch.birthDate";
+
 	private static final int MAX_NAME_LENGTH = 30;
+
+	private final Clock clock;
+
+	public PetValidator() {
+		this(Clock.systemDefaultZone());
+	}
+
+	public PetValidator(Clock clock) {
+		this.clock = clock;
+	}
 
 	@Override
 	public void validate(Object obj, Errors errors) {
@@ -55,6 +70,9 @@ public class PetValidator implements Validator {
 		// birth date validation
 		if (pet.getBirthDate() == null) {
 			errors.rejectValue("birthDate", REQUIRED, REQUIRED);
+		}
+		else if (pet.getBirthDate().isAfter(LocalDate.now(this.clock))) {
+			errors.rejectValue("birthDate", FUTURE_BIRTH_DATE, "Birth date must not be in the future");
 		}
 	}
 

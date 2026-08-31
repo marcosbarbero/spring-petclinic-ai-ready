@@ -23,11 +23,16 @@ import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.MapBindingResult;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -132,6 +137,64 @@ class PetValidatorTests {
 			petValidator.validate(pet, errors);
 
 			assertTrue(errors.hasFieldErrors("name"));
+		}
+
+	}
+
+	@Nested
+	class BirthDateNotInTheFuture {
+
+		private static final Clock FIXED_CLOCK = Clock.fixed(Instant.parse("2026-08-31T12:00:00Z"), ZoneOffset.UTC);
+
+		private static final LocalDate TODAY = LocalDate.of(2026, 8, 31);
+
+		private static final LocalDate TOMORROW = LocalDate.of(2026, 9, 1);
+
+		private static final LocalDate PAST = LocalDate.of(2020, 1, 15);
+
+		private static final String FUTURE_CODE = "typeMismatch.birthDate";
+
+		private void validateWithBirthDate(LocalDate birthDate) {
+			petType.setName(petTypeName);
+			pet.setName("Leo");
+			pet.setType(petType);
+			pet.setBirthDate(birthDate);
+
+			new PetValidator(FIXED_CLOCK).validate(pet, errors);
+		}
+
+		@Test
+		void acceptsBirthDateInThePast() {
+			validateWithBirthDate(PAST);
+
+			assertFalse(errors.hasFieldErrors("birthDate"));
+		}
+
+		@Test
+		void acceptsBirthDateOfToday() {
+			validateWithBirthDate(TODAY);
+
+			assertFalse(errors.hasFieldErrors("birthDate"));
+		}
+
+		@Test
+		void rejectsBirthDateInTheFuture() {
+			validateWithBirthDate(TOMORROW);
+
+			assertThat(errors.getFieldError("birthDate")).isNotNull()
+				.extracting(FieldError::getCode)
+				.isEqualTo(FUTURE_CODE);
+		}
+
+		@Test
+		void rejectsMissingBirthDateAsRequired() {
+			validateWithBirthDate(null);
+
+			assertThat(errors.getFieldError("birthDate")).isNotNull()
+				.extracting(FieldError::getCode)
+				.isEqualTo("required")
+				.isNotEqualTo(FUTURE_CODE);
+			assertThat(errors.getFieldErrors("birthDate")).hasSize(1);
 		}
 
 	}
