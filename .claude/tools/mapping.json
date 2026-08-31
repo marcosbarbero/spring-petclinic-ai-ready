@@ -42,12 +42,12 @@
       "summary": "Surviving mutants and where they are, in ~15 lines",
       "use_when": "after -Pmutation, or whenever asked to improve the mutation score"
     },
-    "open-pr": {
-      "example": ".claude/tools/open_pr.py --issue 1 --body-file draft.md --dry-run",
-      "path": ".claude/tools/open_pr.py",
-      "replaces": "gh pr create with a body nobody checked against the ticket",
-      "summary": "Open a PR, or refuse: validates the template against the issue's scenarios",
-      "use_when": "the ONLY way to open a PR here \u2014 `gh pr create` is denied"
+    "pr": {
+      "example": ".claude/tools/pr.py update --issue 7 --body-file draft.md --dry-run",
+      "path": ".claude/tools/pr.py",
+      "replaces": "gh pr create / gh pr edit with a body nobody checked against the ticket",
+      "summary": "Create or update a PR body, or refuse: validates the template against the issue's scenarios",
+      "use_when": "the ONLY way to write a PR body here \u2014 `gh pr create` and `gh pr edit` are both denied"
     }
   },
   "version": 1
