@@ -80,7 +80,13 @@ def architecture(area: str | None) -> str:
 
 
 def section(body: str, name: str) -> str:
-    m = re.search(rf"#+\s*{name}\s*\n(.*?)(?=\n#+\s|\Z)", body, re.I | re.S)
+    """Match a heading by its opening words, tolerating trailing text.
+
+    Headings are written for humans: "## Current behaviour - and how you verified it".
+    Requiring an exact match makes the tool refuse well-formed tickets, which trains
+    people to fight the gate instead of using it.
+    """
+    m = re.search(rf"^#+\s*{name}\b[^\n]*\n(.*?)(?=\n#+\s|\Z)", body, re.I | re.S | re.M)
     return m.group(1).strip() if m else ""
 
 
