@@ -75,8 +75,16 @@ body:
       label: Test scenarios (Gherkin)
       description: >
         How each requirement is proven. At least TWO scenarios — one happy path is not
-        acceptance criteria, cover the boundary. If you cannot express it as
-        Given/When/Then, the requirement is not yet clear enough to implement.
+        acceptance criteria, cover the boundary.
+
+        WRITE THEM AT THE LEVEL A USER FEELS, not the layer you expect the fix to live in.
+        "When the pet is saved", not "when the pet is validated". Then apply the test:
+        could this scenario pass while the feature is still broken for a user? If yes, it
+        is at the wrong altitude — raise it.
+
+        A scenario pinned to a class pre-decides the design, and anything outside that
+        class silently leaves scope. That is how a validator gets raised to 50 characters
+        against a VARCHAR(30) column, with every gate green.
       render: gherkin
       value: |
         Scenario: the happy path

@@ -46,6 +46,12 @@ exists to remove.
    satisfies the requirement. A correct implementation of a requirement that was already
    met is still a reject, and every other gate will be green when you find it.
 
+8. **Are the scenarios at the right altitude?** Ask of each one: *could this pass while
+   the feature is still broken for a user?* A scenario that only exercises the class the
+   ticket named proves the class changed, not that the requirement is met. Check the
+   whole path the requirement touches — persistence, schema, template — and reject if the
+   evidence stops short of it.
+
 ## Verdict
 
 Emit exactly one:

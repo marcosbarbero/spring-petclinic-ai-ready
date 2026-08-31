@@ -54,6 +54,10 @@ a scenario that could be read two ways.
 - Never edit the gates: `.githooks/`, `.claude/hooks/`, `ArchitectureRulesTest`, or the
   threshold config in `pom.xml`. **Moving the gate is not passing it.**
 - Do not implement anything not in the brief. Scope creep is a review rejection.
+- **But if the scope excludes something the requirement depends on, STOP AND SAY SO.**
+  A constraint like "change X only" or "the database is out of scope" can cut straight
+  through the middle of a feature. Obeying it produces a confident, green, broken result —
+  which is worse than refusing. Name the conflict; do not quietly deliver half of it.
 - If a scenario is ambiguous, or requires crossing a feature-slice boundary
   (`owner` <-> `vet`, anything into `model`), **stop and say so.** That is a design
   decision and it is not yours to make silently.
