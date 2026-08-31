@@ -156,7 +156,7 @@ The prompt is an issue number. Everything else lives in the repo.
 5. **Cycle** — bounded at 3 rounds, then escalate. A loop that won't converge is almost
    always an ambiguous requirement, not a stubborn bug.
 6. **Gate** — `./mvnw verify` and `-Pmutation verify`.
-7. **PR** — opened by `.claude/tools/open_pr.py`, never `gh pr create` (denied). It
+7. **PR** — opened by `.claude/tools/pr.py`, never `gh pr create` (denied). It
    refuses a PR that does not close an open issue, is missing a section, omits any of the
    issue's scenarios from its coverage table, has no mutation evidence, or is tier-3.
 

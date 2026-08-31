@@ -17,8 +17,8 @@ parsing prose and cannot drift from the registry.
 | `issue-context` | GitHub issue -> validated work brief; refuses bad tickets, stops on tier-3 | step 1 of /work, always, before any planning or code |
 | `lexicon` | Durable memory: how we solved this class of problem before | BEFORE working anything out from scratch — search it first; add an entry after |
 | `mutation-survivors` | Surviving mutants and where they are, in ~15 lines | after -Pmutation, or whenever asked to improve the mutation score |
-| `open-pr` | Open a PR, or refuse: validates the template against the issue's scenarios | the ONLY way to open a PR here — `gh pr create` is denied |
 | `wall-clock-in-tests` | Gate: no LocalDate.now() & friends in tests; ratchets the existing backlog down | BEFORE writing any test that involves a date or time — and it runs in `./mvnw verify` either way |
+| `pr` | Create or update a PR body, or refuse: validates the template against the issue's scenarios | the ONLY way to write a PR body here — `gh pr create` and `gh pr edit` are both denied |
 
 ## Adding a tool
 
